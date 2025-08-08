@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Sewa Kios Al Jabar </title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Reset & Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            color: #1f2937;
+            font-size: 16px;
+        }
+        button, input, select, textarea {
+            font-family: inherit;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .modal.active {
+            display: flex;
+        }
+
+        /* Main Layout */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            background-color: #f9fafb;
+        }
+        .sidebar {
+            width: 256px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            line-height: 2rem;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+        .sidebar-header p {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .sidebar-nav {
+            flex-grow: 1;
+            padding: 1rem;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            font-weight: 500;
+            color: #374151;
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+        }
+        .nav-item i {
+            width: 1.25rem;
+        }
+        .nav-item:hover {
+            background-color: #eef2ff;
+        }
+        .nav-item.active {
+            background-color: #4f46e5;
+            color: #ffffff;
+        }
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .page-header h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .btn-primary { background-color: #4f46e5; color: white; }
+        .btn-primary:hover { background-color: #4338ca; }
+        .btn-secondary { background-color: #e5e7eb; color: #374151; border: 1px solid #d1d5db; }
+        .btn-secondary:hover { background-color: #d1d5db; }
+        .btn-danger { background-color: #ef4444; color: white; }
+        .btn-danger:hover { background-color: #dc2626; }
+        .btn-success { background-color: #22c55e; color: white; }
+        .btn-success:hover { background-color: #16a34a; }
+
+        /* Tables */
+        .table-container {
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead {
+            background-color: #f9fafb;
+        }
+        th {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #4b5563;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: middle;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .actions-cell {
+            text-align: right;
+        }
+        .actions-cell .btn {
+            padding: 0.3rem 0.6rem;
+        }
+        .actions-cell .btn + .btn {
+            margin-left: 0.5rem;
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 9999px;
+        }
+        .status-badge.active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .status-badge.inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        .dashboard-card {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        .dashboard-card-icon {
+            padding: 0.75rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dashboard-card-icon i { font-size: 1.5rem; }
+        .icon-indigo { background-color: #e0e7ff; color: #4f46e5; }
+        .icon-green { background-color: #d1fae5; color: #059669; }
+        .icon-blue { background-color: #dbeafe; color: #2563eb; }
+        .icon-red { background-color: #fee2e2; color: #ef4444; }
+        .dashboard-card-content {
+            margin-left: 1rem;
+        }
+        .dashboard-card-content p:first-child {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .dashboard-card-content p:last-child {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Reports Section */
+        .card {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        .report-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 1rem;
+        }
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        .report-details-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        @media (min-width: 1024px) { 
+            .report-details-grid { grid-template-columns: repeat(2, 1fr); } 
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 50;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 512px;
+        }
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h3 { 
+            font-size: 1.25rem; 
+            font-weight: 700; 
+        }
+        .modal-header button { 
+            background: none; 
+            border: none; 
+            font-size: 1.5rem; 
+            cursor: pointer; 
+            color: #6b7280; 
+        }
+        .modal-body { 
+            padding: 1.5rem; 
+        }
+        .modal-footer {
+            padding: 1.5rem;
+            background-color: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+        .form-group { 
+            margin-bottom: 1rem; 
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .text-right { 
+            text-align: right; 
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>AL JABAR</h1>
+                <p>Data Sewa Kios</p>
+            </div>
+            <nav id="navigation" class="sidebar-nav">
+                <a class="nav-item active" data-view="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a class="nav-item" data-view="properties"><i class="fas fa-building"></i> Properti</a>
+                <a class="nav-item" data-view="tenants"><i class="fas fa-users"></i> Penyewa</a>
+                <a class="nav-item" data-view="leases"><i class="fas fa-file-contract"></i> Sewa</a>
+                <a class="nav-item" data-view="reports"><i class="fas fa-chart-line"></i> Laporan Keuangan</a>
+                <a class="nav-item" data-view="receivables"><i class="fas fa-file-invoice-dollar"></i> Laporan Piutang</a>
+            </nav>
+            <div class="sidebar-footer">
+                <p>Status: <span style="color: #059669; font-weight: 600;">Online (Lokal)</span></p>
+                <p style="color: #ef4444;">Data akan hilang saat refresh.</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div id="view-dashboard" class="view active">
+                <div class="page-header"><h2>Dashboard</h2></div>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-icon icon-indigo"><i class="fas fa-building"></i></div>
+                        <div class="dashboard-card-content">
+                            <p>Total Properti</p>
+                            <p id="db-total-properties">0</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-icon icon-green"><i class="fas fa-users"></i></div>
+                        <div class="dashboard-card-content">
+                            <p>Total Penyewa</p>
+                            <p id="db-total-tenants">0</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-icon icon-blue"><i class="fas fa-building-user"></i></div>
+                        <div class="dashboard-card-content">
+                            <p>Unit Terisi</p>
+                            <p id="db-occupied-units">0</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-icon icon-red"><i class="fas fa-file-invoice-dollar"></i></div>
+                        <div class="dashboard-card-content">
+                            <p>Total Piutang</p>
+                            <p id="db-total-receivables">Rp 0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-properties" class="view hidden">
+                <div class="page-header">
+                    <h2>Manajemen Properti</h2>
+                    <button id="add-property-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Properti</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Nama Properti</th><th>Alamat</th><th>Harga Sewa/Bulan</th><th class="actions-cell">Aksi</th></tr>
+                        </thead>
+                        <tbody id="properties-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="view-tenants" class="view hidden">
+                <div class="page-header">
+                    <h2>Manajemen Penyewa</h2>
+                    <button id="add-tenant-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Penyewa</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Nama Penyewa</th><th>Telepon</th><th>Email</th><th class="actions-cell">Aksi</th></tr>
+                        </thead>
+                        <tbody id="tenants-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="view-leases" class="view hidden">
+                <div class="page-header">
+                    <h2>Manajemen Sewa</h2>
+                    <button id="add-lease-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Buat Sewa Baru</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Properti</th><th>Penyewa</th><th>Periode Sewa</th><th>Status</th><th class="actions-cell">Aksi</th></tr>
+                        </thead>
+                        <tbody id="leases-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="view-reports" class="view hidden">
+                <div class="page-header"><h2>Laporan Keuangan Sewa Kios</h2></div>
+                <div class="card">
+                    <div class="report-controls">
+                        <div class="form-group">
+                            <label for="report-start-date">Tanggal Mulai</label>
+                            <input type="date" id="report-start-date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="report-end-date">Tanggal Selesai</label>
+                            <input type="date" id="report-end-date" class="form-control">
+                        </div>
+                        <button id="generate-report-btn" class="btn btn-primary">Buat Laporan</button>
+                        <button id="print-report-btn" class="btn btn-secondary hidden"><i class="fas fa-print"></i> Cetak Laporan</button>
+                    </div>
+                </div>
+                <div id="report-results" class="hidden">
+                    <div class="report-grid">
+                        <div class="dashboard-card">
+                            <div class="dashboard-card-content"><p>Total Pendapatan</p><p id="report-income">Rp 0</p></div>
+                        </div>
+                        <div class="dashboard-card">
+                            <div class="dashboard-card-content"><p>Total Pengeluaran</p><p id="report-expenses">Rp 0</p></div>
+                        </div>
+                        <div class="dashboard-card">
+                            <div class="dashboard-card-content"><p>Laba Bersih</p><p id="report-profit">Rp 0</p></div>
+                        </div>
+                    </div>
+                    <div class="report-details-grid">
+                        <div class="table-container">
+                            <h3 style="padding:1rem; border-bottom: 1px solid #e5e7eb;">Detail Pendapatan</h3>
+                            <div style="padding:1rem; max-height: 300px; overflow-y:auto;">
+                                <table>
+                                    <thead>
+                                        <tr><th>Tanggal</th><th>Penyewa</th><th class="text-right">Jumlah</th></tr>
+                                    </thead>
+                                    <tbody id="income-details-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <div class="page-header" style="padding:1rem; border-bottom: 1px solid #e5e7eb; margin-bottom:0;">
+                                <h3 style="font-size:1.25rem;">Detail Pengeluaran</h3>
+                                <button id="add-expense-btn" class="btn btn-secondary"><i class="fas fa-plus"></i> Tambah</button>
+                            </div>
+                            <div style="padding:1rem; max-height: 300px; overflow-y:auto;">
+                                <table>
+                                    <thead>
+                                        <tr><th>Tanggal</th><th>Deskripsi</th><th class="text-right">Jumlah</th><th class="actions-cell">Aksi</th></tr>
+                                    </thead>
+                                    <tbody id="expense-details-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-receivables" class="view hidden">
+                <div class="page-header">
+                    <h2>Laporan Piutang Penyewa</h2>
+                    <div>
+                        <button id="recalculate-receivables-btn" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Hitung Ulang</button>
+                        <button id="print-receivables-btn" class="btn btn-secondary hidden"><i class="fas fa-print"></i> Cetak Laporan</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Penyewa</th><th>Properti</th><th>Total Tagihan</th><th>Total Bayar</th><th class="text-right">Tunggakan</th></tr>
+                        </thead>
+                        <tbody id="receivables-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title"></h3>
+                <button id="modal-close-btn">&times;</button>
+            </div>
+            <div id="modal-body" class="modal-body"></div>
+            <div class="modal-footer">
+                <button id="modal-cancel-btn" class="btn btn-secondary">Batal</button>
+                <button id="modal-save-btn" class="btn btn-primary">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="payment-modal" class="modal">
+        <div class="modal-content" style="max-width: 448px;">
+            <div class="modal-header">
+                <h3>Catat Pembayaran</h3>
+                <button class="payment-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="payment-lease-id">
+                <div class="form-group">
+                    <label for="payment-amount">Jumlah Pembayaran (Rp)</label>
+                    <input type="number" id="payment-amount" class="form-control" placeholder="5000000" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="payment-date">Tanggal Pembayaran</label>
+                    <input type="date" id="payment-date" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="payment-notes">Catatan (Opsional)</label>
+                    <textarea id="payment-notes" rows="2" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="payment-modal-close btn btn-secondary">Batal</button>
+                <button id="save-payment-btn" class="btn btn-primary">Simpan Pembayaran</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="expense-modal" class="modal">
+        <div class="modal-content" style="max-width: 448px;">
+            <div class="modal-header">
+                <h3 id="expense-modal-title">Catat Pengeluaran</h3>
+                <button class="expense-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="expense-id">
+                <div class="form-group">
+                    <label for="expense-description">Deskripsi</label>
+                    <input type="text" id="expense-description" class="form-control" placeholder="e.g., Perbaikan atap">
+                </div>
+                <div class="form-group">
+                    <label for="expense-amount">Jumlah (Rp)</label>
+                    <input type="number" id="expense-amount" class="form-control" placeholder="1500000" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="expense-date">Tanggal</label>
+                    <input type="date" id="expense-date" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="expense-modal-close btn btn-secondary">Batal</button>
+                <button id="save-expense-btn" class="btn btn-primary">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alert-modal" class="modal">
+        <div class="modal-content" style="max-width: 384px;">
+            <div style="padding: 1.5rem; text-align: center;">
+                <div style="margin: auto; display: flex; align-items: center; justify-content: center; height: 3rem; width: 3rem; border-radius: 9999px; background-color: #dbeafe;">
+                    <i class="fas fa-info-circle" style="color: #3b82f6; font-size: 1.25rem;"></i>
+                </div>
+                <h3 id="alert-modal-title" style="font-size: 1.125rem; font-weight: 500; color: #111827; margin-top: 1.25rem;">Notifikasi</h3>
+                <p id="alert-modal-text" style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">Ini adalah pesan notifikasi.</p>
+            </div>
+            <div style="padding: 1rem; background-color: #f9fafb; display: flex; justify-content: center;">
+                <button id="alert-modal-ok-btn" class="btn btn-primary" style="width: 100%;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content" style="max-width: 384px;">
+            <div style="padding: 1.5rem; text-align: center;">
+                <div style="margin: auto; display: flex; align-items: center; justify-content: center; height: 3rem; width: 3rem; border-radius: 9999px; background-color: #fee2e2;">
+                    <i class="fas fa-exclamation-triangle" style="color: #ef4444; font-size: 1.25rem;"></i>
+                </div>
+                <h3 id="confirm-modal-title" style="font-size: 1.125rem; font-weight: 500; color: #111827; margin-top: 1.25rem;">Hapus Item?</h3>
+                <p id="confirm-modal-text" style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">Apakah Anda yakin? Tindakan ini tidak dapat diurungkan.</p>
+            </div>
+            <div style="padding: 1rem; background-color: #f9fafb; display: flex; justify-content: center; gap: 0.75rem;">
+                <button id="confirm-modal-cancel-btn" class="btn btn-secondary" style="width: 100%;">Batal</button>
+                <button id="confirm-modal-ok-btn" class="btn btn-danger" style="width: 100%;">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // State aplikasi
+        let currentEditId = null;
+
+        // Data Contoh
+        window.properties = [
+            { id: 'prop1', name: 'Ruko Melati Square A1', address: 'Jl. Melati No. 123, Jakarta', rentPrice: 7500000 },
+            { id: 'prop2', name: 'Ruko Anggrek Center B5', address: 'Jl. Anggrek No. 45, Surabaya', rentPrice: 5000000 }
+        ];
+        window.tenants = [
+            { id: 'ten1', name: 'Budi Santoso', phone: '081234567890', email: 'budi.s@example.com' },
+            { id: 'ten2', name: 'Citra Lestari', phone: '089876543210', email: 'citra.l@example.com' }
+        ];
+        window.leases = [
+            { id: 'lease1', propertyId: 'prop1', tenantId: 'ten1', startDate: '2024-01-01', endDate: '2024-12-31', monthlyRent: 7500000, status: 'active' },
+            { id: 'lease2', propertyId: 'prop2', tenantId: 'ten2', startDate: '2024-03-15', endDate: '2025-03-14', monthlyRent: 5000000, status: 'active' }
+        ];
+        window.payments = [
+            { id: 'pay1', leaseId: 'lease1', amount: 7500000, paymentDate: '2024-01-05', notes: 'Pembayaran Januari' },
+            { id: 'pay2', leaseId: 'lease1', amount: 7500000, paymentDate: '2024-02-04', notes: 'Pembayaran Februari' },
+            { id: 'pay3', leaseId: 'lease2', amount: 5000000, paymentDate: '2024-03-15', notes: 'Pembayaran Maret' }
+        ];
+        window.expenses = [
+            { id: 'exp1', description: 'Perbaikan Atap Ruko Melati', amount: 1200000, date: '2024-02-20' }
+        ];
+
+        // Fungsi Utilitas
+        const formatCurrency = (amount) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+        const formatDate = (dateString) => {
+            if (!dateString) return 'N/A';
+            return new Date(dateString).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+        };
+        const getTodayDateString = () => new Date().toISOString().split('T')[0];
+        const generateId = (prefix) => `${prefix}${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
+
+        // Modal Handling
+        const showAlert = (text, title = 'Notifikasi') => {
+            document.getElementById('alert-modal-title').textContent = title;
+            document.getElementById('alert-modal-text').textContent = text;
+            document.getElementById('alert-modal').classList.add('active');
+        };
+        document.getElementById('alert-modal-ok-btn').addEventListener('click', () => {
+            document.getElementById('alert-modal').classList.remove('active');
+        });
+
+        const showConfirm = (title, text, onConfirm) => {
+            document.getElementById('confirm-modal-title').textContent = title;
+            document.getElementById('confirm-modal-text').textContent = text;
+            document.getElementById('confirm-modal').classList.add('active');
+            const confirmHandler = () => {
+                onConfirm();
+                document.getElementById('confirm-modal').classList.remove('active');
+                document.getElementById('confirm-modal-ok-btn').removeEventListener('click', confirmHandler);
+            };
+            document.getElementById('confirm-modal-ok-btn').addEventListener('click', confirmHandler);
+        };
+        document.getElementById('confirm-modal-cancel-btn').addEventListener('click', () => {
+            document.getElementById('confirm-modal').classList.remove('active');
+        });
+
+        const openModal = (title, bodyHtml, saveHandler) => {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = bodyHtml;
+            document.getElementById('modal').classList.add('active');
+            document.getElementById('modal-save-btn').onclick = saveHandler;
+        };
+        const closeModal = () => {
+            document.getElementById('modal').classList.remove('active');
+            document.getElementById('modal-body').innerHTML = '';
+            currentEditId = null;
+        };
+        document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+        document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
+
+        // Render Functions
+        const renderProperties = () => {
+            const tbody = document.getElementById('properties-table-body');
+            tbody.innerHTML = window.properties.length ? window.properties.map(p => `
+                <tr>
+                    <td>${p.name}</td>
+                    <td>${p.address}</td>
+                    <td>${formatCurrency(p.rentPrice)}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-secondary edit-property-btn" data-id="${p.id}"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger delete-property-btn" data-id="${p.id}"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('') : `<tr><td colspan="4" style="text-align:center; padding: 1rem; color: #6b7280;">Belum ada properti.</td></tr>`;
+        };
+
+        const renderTenants = () => {
+            const tbody = document.getElementById('tenants-table-body');
+            tbody.innerHTML = window.tenants.length ? window.tenants.map(t => `
+                <tr>
+                    <td>${t.name}</td>
+                    <td>${t.phone}</td>
+                    <td>${t.email || 'N/A'}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-secondary edit-tenant-btn" data-id="${t.id}"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger delete-tenant-btn" data-id="${t.id}"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('') : `<tr><td colspan="4" style="text-align:center; padding: 1rem; color: #6b7280;">Belum ada penyewa.</td></tr>`;
+        };
+
+        const renderLeases = () => {
+            const tbody = document.getElementById('leases-table-body');
+            tbody.innerHTML = window.leases.length ? window.leases.map(l => {
+                const property = window.properties.find(p => p.id === l.propertyId);
+                const tenant = window.tenants.find(t => t.id === l.tenantId);
+                return `
+                <tr>
+                    <td>${property?.name || 'N/A'}</td>
+                    <td>${tenant?.name || 'N/A'}</td>
+                    <td>${formatDate(l.startDate)} - ${formatDate(l.endDate)}</td>
+                    <td><span class="status-badge ${l.status}">${l.status === 'active' ? 'Aktif' : 'Tidak Aktif'}</span></td>
+                    <td class="actions-cell">
+                        <button class="btn btn-success record-payment-btn" data-id="${l.id}"><i class="fas fa-dollar-sign"></i></button>
+                        <button class="btn btn-secondary edit-lease-btn" data-id="${l.id}"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger delete-lease-btn" data-id="${l.id}"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `}).join('') : `<tr><td colspan="5" style="text-align:center; padding: 1rem; color: #6b7280;">Belum ada data sewa.</td></tr>`;
+        };
+
+        const renderExpenses = () => {
+            const tbody = document.getElementById('expense-details-body');
+            tbody.innerHTML = window.expenses.length ? window.expenses.map(ex => `
+                <tr>
+                    <td>${formatDate(ex.date)}</td>
+                    <td>${ex.description}</td>
+                    <td class="text-right">${formatCurrency(ex.amount)}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-secondary edit-expense-btn" data-id="${ex.id}"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger delete-expense-btn" data-id="${ex.id}"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('') : `<tr><td colspan="4" style="text-align:center; padding: 1rem; color: #6b7280;">Tidak ada pengeluaran.</td></tr>`;
+        };
+
+        const updateDashboard = () => {
+            document.getElementById('db-total-properties').textContent = window.properties.length;
+            document.getElementById('db-total-tenants').textContent = window.tenants.length;
+            document.getElementById('db-occupied-units').textContent = window.leases.filter(l => l.status === 'active').length;
+            document.getElementById('db-total-receivables').textContent = formatCurrency(
+                window.leases.filter(l => l.status === 'active')
+                    .reduce((sum, lease) => sum + calculateReceivableForLease(lease).outstanding, 0)
+            );
+        };
+
+        const renderAll = () => {
+            renderProperties();
+            renderTenants();
+            renderLeases();
+            renderExpenses();
+            updateDashboard();
+        };
+
+        // CRUD Handlers
+        // Properties
+        const saveProperty = () => {
+            const name = document.getElementById('prop-name')?.value;
+            const address = document.getElementById('prop-address')?.value;
+            const rentPrice = parseFloat(document.getElementById('prop-rent')?.value);
+            if (!name || !address || isNaN(rentPrice) || rentPrice <= 0) {
+                showAlert('Harap isi semua kolom dengan benar.');
+                return;
+            }
+            if (currentEditId) {
+                const index = window.properties.findIndex(p => p.id === currentEditId);
+                window.properties[index] = { ...window.properties[index], name, address, rentPrice };
+            } else {
+                window.properties.push({ id: generateId('prop'), name, address, rentPrice });
+            }
+            closeModal();
+            renderAll();
+            showAlert('Properti berhasil disimpan!');
+        };
+
+        document.getElementById('add-property-btn').addEventListener('click', () => {
+            currentEditId = null;
+            openModal(
+                'Tambah Properti Baru',
+                `
+                    <div class="form-group">
+                        <label for="prop-name">Nama Properti</label>
+                        <input type="text" id="prop-name" class="form-control" placeholder="Ruko Melati Blok A1">
+                    </div>
+                    <div class="form-group">
+                        <label for="prop-address">Alamat</label>
+                        <input type="text" id="prop-address" class="form-control" placeholder="Jl. Merdeka No. 123">
+                    </div>
+                    <div class="form-group">
+                        <label for="prop-rent">Harga Sewa/Bulan (Rp)</label>
+                        <input type="number" id="prop-rent" class="form-control" placeholder="5000000" min="0">
+                    </div>
+                `,
+                saveProperty
+            );
+        });
+
+        document.getElementById('properties-table-body').addEventListener('click', (e) => {
+            const editBtn = e.target.closest('.edit-property-btn');
+            const deleteBtn = e.target.closest('.delete-property-btn');
+            if (editBtn) {
+                currentEditId = editBtn.dataset.id;
+                const prop = window.properties.find(p => p.id === currentEditId);
+                openModal(
+                    'Edit Properti',
+                    `
+                        <div class="form-group">
+                            <label for="prop-name">Nama Properti</label>
+                            <input type="text" id="prop-name" value="${prop.name}" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="prop-address">Alamat</label>
+                            <input type="text" id="prop-address" value="${prop.address}" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="prop-rent">Harga Sewa/Bulan (Rp)</label>
+                            <input type="number" id="prop-rent" value="${prop.rentPrice}" class="form-control" min="0">
+                        </div>
+                    `,
+                    saveProperty
+                );
+            }
+            if (deleteBtn) {
+                const id = deleteBtn.dataset.id;
+                if (window.leases.some(l => l.propertyId === id)) {
+                    showAlert('Properti tidak dapat dihapus karena sedang digunakan dalam sewa.');
+                    return;
+                }
+                showConfirm('Hapus Properti?', 'Apakah Anda yakin ingin menghapus properti ini?', () => {
+                    window.properties = window.properties.filter(p => p.id !== id);
+                    renderAll();
+                    showAlert('Properti berhasil dihapus!');
+                });
+            }
+        });
+
+        // Tenants
+        const saveTenant = () => {
+            const name = document.getElementById('tenant-name')?.value;
+            const phone = document.getElementById('tenant-phone')?.value;
+            const email = document.getElementById('tenant-email')?.value;
+            if (!name || !phone) {
+                showAlert('Nama dan nomor telepon wajib diisi.');
+                return;
+            }
+            if (currentEditId) {
+                const index = window.tenants.findIndex(t => t.id === currentEditId);
+                window.tenants[index] = { ...window.tenants[index], name, phone, email };
+            } else {
+                window.tenants.push({ id: generateId('ten'), name, phone, email });
+            }
+            closeModal();
+            renderAll();
+            showAlert('Penyewa berhasil disimpan!');
+        };
+
+        document.getElementById('add-tenant-btn').addEventListener('click', () => {
+            currentEditId = null;
+            openModal(
+                'Tambah Penyewa Baru',
+                `
+                    <div class="form-group">
+                        <label for="tenant-name">Nama Lengkap</label>
+                        <input type="text" id="tenant-name" class="form-control" placeholder="Budi Santoso">
+                    </div>
+                    <div class="form-group">
+                        <label for="tenant-phone">Nomor Telepon</label>
+                        <input type="tel" id="tenant-phone" class="form-control" placeholder="081234567890">
+                    </div>
+                    <div class="form-group">
+                        <label for="tenant-email">Email (Opsional)</label>
+                        <input type="email" id="tenant-email" class="form-control" placeholder="budi.santoso@example.com">
+                    </div>
+                `,
+                saveTenant
+            );
+        });
+
+        document.getElementById('tenants-table-body').addEventListener('click', (e) => {
+            const editBtn = e.target.closest('.edit-tenant-btn');
+            const deleteBtn = e.target.closest('.delete-tenant-btn');
+            if (editBtn) {
+                currentEditId = editBtn.dataset.id;
+                const tenant = window.tenants.find(t => t.id === currentEditId);
+                openModal(
+                    'Edit Penyewa',
+                    `
+                        <div class="form-group">
+                            <label for="tenant-name">Nama Lengkap</label>
+                            <input type="text" id="tenant-name" value="${tenant.name}" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="tenant-phone">Nomor Telepon</label>
+                            <input type="tel" id="tenant-phone" value="${tenant.phone}" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="tenant-email">Email (Opsional)</label>
+                            <input type="email" id="tenant-email" value="${tenant.email || ''}" class="form-control">
+                        </div>
+                    `,
+                    saveTenant
+                );
+            }
+            if (deleteBtn) {
+                const id = deleteBtn.dataset.id;
+                if (window.leases.some(l => l.tenantId === id)) {
+                    showAlert('Penyewa tidak dapat dihapus karena sedang digunakan dalam sewa.');
+                    return;
+                }
+                showConfirm('Hapus Penyewa?', 'Apakah Anda yakin ingin menghapus penyewa ini?', () => {
+                    window.tenants = window.tenants.filter(t => t.id !== id);
+                    renderAll();
+                    showAlert('Penyewa berhasil dihapus!');
+                });
+            }
+        });
+
+        // Leases
+        const saveLease = () => {
+            const propertyId = document.getElementById('lease-property')?.value;
+            const tenantId = document.getElementById('lease-tenant')?.value;
+            const startDate = document.getElementById('lease-start')?.value;
+            const endDate = document.getElementById('lease-end')?.value;
+            const status = document.getElementById('lease-status')?.value;
+            const property = window.properties.find(p => p.id === propertyId);
+            if (!propertyId || !tenantId || !startDate || !endDate) {
+                showAlert('Harap isi semua kolom.');
+                return;
+            }
+            if (new Date(startDate) > new Date(endDate)) {
+                showAlert('Tanggal mulai harus sebelum tanggal selesai.');
+                return;
+            }
+            if (window.leases.some(l => l.propertyId === propertyId && l.status === 'active' && l.id !== currentEditId)) {
+                showAlert('Properti ini sudah disewa dalam periode aktif.');
+                return;
+            }
+            const data = {
+                id: currentEditId || generateId('lease'),
+                propertyId,
+                tenantId,
+                startDate,
+                endDate,
+                monthlyRent: property.rentPrice,
+                status
+            };
+            if (currentEditId) {
+                const index = window.leases.findIndex(l => l.id === currentEditId);
+                window.leases[index] = data;
+            } else {
+                window.leases.push(data);
+            }
+            closeModal();
+            renderAll();
+            showAlert('Data sewa berhasil disimpan!');
+        };
+
+        document.getElementById('add-lease-btn').addEventListener('click', () => {
+            if (!window.properties.length || !window.tenants.length) {
+                showAlert('Tambahkan properti dan penyewa terlebih dahulu.');
+                return;
+            }
+            currentEditId = null;
+            openModal(
+                'Buat Sewa Baru',
+                `
+                    <div class="form-group">
+                        <label for="lease-property">Pilih Properti</label>
+                        <select id="lease-property" class="form-control">
+                            ${window.properties.map(p => `<option value="${p.id}">${p.name} (${formatCurrency(p.rentPrice)})</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="lease-tenant">Pilih Penyewa</label>
+                        <select id="lease-tenant" class="form-control">
+                            ${window.tenants.map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="lease-start">Tanggal Mulai</label>
+                        <input type="date" id="lease-start" value="${getTodayDateString()}" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="lease-end">Tanggal Selesai</label>
+                        <input type="date" id="lease-end" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="lease-status">Status</label>
+                        <select id="lease-status" class="form-control">
+                            <option value="active">Aktif</option>
+                            <option value="inactive">Tidak Aktif</option>
+                        </select>
+                    </div>
+                `,
+                saveLease
+            );
+        });
+
+        document.getElementById('leases-table-body').addEventListener('click', (e) => {
+            const editBtn = e.target.closest('.edit-lease-btn');
+            const deleteBtn = e.target.closest('.delete-lease-btn');
+            const paymentBtn = e.target.closest('.record-payment-btn');
+            if (editBtn) {
+                currentEditId = editBtn.dataset.id;
+                const lease = window.leases.find(l => l.id === currentEditId);
+                openModal(
+                    'Edit Data Sewa',
+                    `
+                        <div class="form-group">
+                            <label for="lease-property">Pilih Properti</label>
+                            <select id="lease-property" class="form-control">
+                                ${window.properties.map(p => `<option value="${p.id}" ${p.id === lease.propertyId ? 'selected' : ''}>${p.name}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="lease-tenant">Pilih Penyewa</label>
+                            <select id="lease-tenant" class="form-control">
+                                ${window.tenants.map(t => `<option value="${t.id}" ${t.id === lease.tenantId ? 'selected' : ''}>${t.name}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="lease-start">Tanggal Mulai</label>
+                            <input type="date" id="lease-start" value="${lease.startDate}" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="lease-end">Tanggal Selesai</label>
+                            <input type="date" id="lease-end" value="${lease.endDate}" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="lease-status">Status</label>
+                            <select id="lease-status" class="form-control">
+                                <option value="active" ${lease.status === 'active' ? 'selected' : ''}>Aktif</option>
+                                <option value="inactive" ${lease.status === 'inactive' ? 'selected' : ''}>Tidak Aktif</option>
+                            </select>
+                        </div>
+                    `,
+                    saveLease
+                );
+            }
+            if (deleteBtn) {
+                const id = deleteBtn.dataset.id;
+                showConfirm('Hapus Sewa?', 'Tindakan ini tidak akan menghapus riwayat pembayaran terkait.', () => {
+                    window.leases = window.leases.filter(l => l.id !== id);
+                    renderAll();
+                    showAlert('Data sewa berhasil dihapus!');
+                });
+            }
+            if (paymentBtn) {
+                const leaseId = paymentBtn.dataset.id;
+                const lease = window.leases.find(l => l.id === leaseId);
+                document.getElementById('payment-lease-id').value = leaseId;
+                document.getElementById('payment-amount').value = lease.monthlyRent;
+                document.getElementById('payment-date').value = getTodayDateString();
+                document.getElementById('payment-notes').value = '';
+                document.getElementById('payment-modal').classList.add('active');
+            }
+        });
+
+        // Payments
+        document.querySelectorAll('.payment-modal-close').forEach(btn => {
+            btn.addEventListener('click', () => document.getElementById('payment-modal').classList.remove('active'));
+        });
+        document.getElementById('save-payment-btn').addEventListener('click', () => {
+            const leaseId = document.getElementById('payment-lease-id').value;
+            const amount = parseFloat(document.getElementById('payment-amount').value);
+            const paymentDate = document.getElementById('payment-date').value;
+            const notes = document.getElementById('payment-notes').value;
+            if (!leaseId || isNaN(amount) || amount <= 0 || !paymentDate) {
+                showAlert('Harap isi jumlah dan tanggal pembayaran dengan benar.');
+                return;
+            }
+            window.payments.push({ id: generateId('pay'), leaseId, amount, paymentDate, notes });
+            document.getElementById('payment-modal').classList.remove('active');
+            renderAll();
+            showAlert('Pembayaran berhasil dicatat!');
+        });
+
+        // Expenses
+        const saveExpense = () => {
+            const description = document.getElementById('expense-description')?.value;
+            const amount = parseFloat(document.getElementById('expense-amount')?.value);
+            const date = document.getElementById('expense-date')?.value;
+            if (!description || isNaN(amount) || amount <= 0 || !date) {
+                showAlert('Harap isi semua kolom dengan benar.');
+                return;
+            }
+            if (currentEditId) {
+                const index = window.expenses.findIndex(ex => ex.id === currentEditId);
+                window.expenses[index] = { ...window.expenses[index], description, amount, date };
+            } else {
+                window.expenses.push({ id: generateId('exp'), description, amount, date });
+            }
+            document.getElementById('expense-modal').classList.remove('active');
+            renderAll();
+            showAlert('Pengeluaran berhasil disimpan!');
+        };
+
+        document.getElementById('add-expense-btn').addEventListener('click', () => {
+            currentEditId = null;
+            document.getElementById('expense-modal-title').textContent = 'Catat Pengeluaran';
+            document.getElementById('expense-description').value = '';
+            document.getElementById('expense-amount').value = '';
+            document.getElementById('expense-date').value = getTodayDateString();
+            document.getElementById('expense-modal').classList.add('active');
+        });
+
+        document.getElementById('expense-details-body').addEventListener('click', (e) => {
+            const editBtn = e.target.closest('.edit-expense-btn');
+            const deleteBtn = e.target.closest('.delete-expense-btn');
+            if (editBtn) {
+                currentEditId = editBtn.dataset.id;
+                const expense = window.expenses.find(ex => ex.id === currentEditId);
+                document.getElementById('expense-modal-title').textContent = 'Edit Pengeluaran';
+                document.getElementById('expense-description').value = expense.description;
+                document.getElementById('expense-amount').value = expense.amount;
+                document.getElementById('expense-date').value = expense.date;
+                document.getElementById('expense-modal').classList.add('active');
+            }
+            if (deleteBtn) {
+                const id = deleteBtn.dataset.id;
+                showConfirm('Hapus Pengeluaran?', 'Apakah Anda yakin ingin menghapus pengeluaran ini?', () => {
+                    window.expenses = window.expenses.filter(ex => ex.id !== id);
+                    renderAll();
+                    showAlert('Pengeluaran berhasil dihapus!');
+                });
+            }
+        });
+
+        document.querySelectorAll('.expense-modal-close').forEach(btn => {
+            btn.addEventListener('click', () => document.getElementById('expense-modal').classList.remove('active'));
+        });
+        document.getElementById('save-expense-btn').addEventListener('click', saveExpense);
+
+        // Reports
+        document.getElementById('generate-report-btn').addEventListener('click', () => {
+            const startDate = document.getElementById('report-start-date').value;
+            const endDate = document.getElementById('report-end-date').value;
+            if (!startDate || !endDate) {
+                showAlert('Harap pilih rentang tanggal.');
+                return;
+            }
+            if (new Date(startDate) > new Date(endDate)) {
+                showAlert('Tanggal mulai harus sebelum tanggal selesai.');
+                return;
+            }
+            const filteredPayments = window.payments.filter(p => p.paymentDate >= startDate && p.paymentDate <= endDate);
+            const totalIncome = filteredPayments.reduce((sum, p) => sum + p.amount, 0);
+            const filteredExpenses = window.expenses.filter(ex => ex.date >= startDate && ex.date <= endDate);
+            const totalExpenses = filteredExpenses.reduce((sum, ex) => sum + ex.amount, 0);
+            const totalProfit = totalIncome - totalExpenses;
+
+            document.getElementById('report-income').textContent = formatCurrency(totalIncome);
+            document.getElementById('report-expenses').textContent = formatCurrency(totalExpenses);
+            document.getElementById('report-profit').textContent = formatCurrency(totalProfit);
+            document.getElementById('income-details-body').innerHTML = filteredPayments.length ? filteredPayments.map(p => {
+                const lease = window.leases.find(l => l.id === p.leaseId);
+                const tenant = lease ? window.tenants.find(t => t.id === lease.tenantId) : null;
+                return `<tr><td>${formatDate(p.paymentDate)}</td><td>${tenant?.name || 'N/A'}</td><td class="text-right">${formatCurrency(p.amount)}</td></tr>`;
+            }).join('') : `<tr><td colspan="3" style="text-align:center; padding: 1rem; color: #6b7280;">Tidak ada pendapatan.</td></tr>`;
+            renderExpenses();
+            document.getElementById('report-results').classList.remove('hidden');
+            document.getElementById('print-report-btn').classList.remove('hidden');
+        });
+
+        document.getElementById('print-report-btn').addEventListener('click', () => {
+            const startDate = document.getElementById('report-start-date').value;
+            const endDate = document.getElementById('report-end-date').value;
+            if (!startDate || !endDate) {
+                showAlert('Silakan buat laporan terlebih dahulu.');
+                return;
+            }
+            const filteredPayments = window.payments.filter(p => p.paymentDate >= startDate && p.paymentDate <= endDate);
+            const totalIncome = filteredPayments.reduce((sum, p) => sum + p.amount, 0);
+            const filteredExpenses = window.expenses.filter(ex => ex.date >= startDate && ex.date <= endDate);
+            const totalExpenses = filteredExpenses.reduce((sum, ex) => sum + ex.amount, 0);
+            const totalProfit = totalIncome - totalExpenses;
+
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Laporan Keuangan Sewa Kios</title>
+                    <style>
+                        body { font-family: 'Inter', sans-serif; font-size: 12px; }
+                        h1, h2 { text-align: center; margin: 12px 0; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 8px; }
+                        th { background-color: #f2f2f2; }
+                        .summary-table { width: 400px; margin: auto; border: none; }
+                        .summary-table td { border: none; font-size: 14px; padding: 5px; }
+                        .summary-table .label { font-weight: bold; }
+                        .summary-table .value { text-align: right; }
+                        .total-row { font-weight: bold; background-color: #f9f9f9; }
+                        .text-right { text-align: right; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Laporan Keuangan Sewa Kios</h1>
+                    <h2>Periode: ${formatDate(startDate)} - ${formatDate(endDate)}</h2>
+                    <table class="summary-table">
+                        <tr><td class="label">Total Pendapatan:</td><td class="value">${formatCurrency(totalIncome)}</td></tr>
+                        <tr><td class="label">Total Pengeluaran:</td><td class="value">${formatCurrency(totalExpenses)}</td></tr>
+                        <tr><td class="label">Laba Bersih:</td><td class="value">${formatCurrency(totalProfit)}</td></tr>
+                    </table>
+                    <h2>Detail Pendapatan</h2>
+                    <table>
+                        <thead><tr><th>Tanggal</th><th>Penyewa</th><th>Properti</th><th class="text-right">Jumlah</th></tr></thead>
+                        <tbody>
+                            ${filteredPayments.map(p => {
+                                const lease = window.leases.find(l => l.id === p.leaseId);
+                                const tenant = lease ? window.tenants.find(t => t.id === lease.tenantId) : null;
+                                const property = lease ? window.properties.find(prop => prop.id === lease.propertyId) : null;
+                                return `<tr><td>${formatDate(p.paymentDate)}</td><td>${tenant?.name || 'N/A'}</td><td>${property?.name || 'N/A'}</td><td class="text-right">${formatCurrency(p.amount)}</td></tr>`;
+                            }).join('')}
+                            <tr class="total-row"><td colspan="3">Total Pendapatan</td><td class="text-right">${formatCurrency(totalIncome)}</td></tr>
+                        </tbody>
+                    </table>
+                    <h2>Detail Pengeluaran</h2>
+                    <table>
+                        <thead><tr><th>Tanggal</th><th colspan="2">Deskripsi</th><th class="text-right">Jumlah</th></tr></thead>
+                        <tbody>
+                            ${filteredExpenses.map(ex => `<tr><td>${formatDate(ex.date)}</td><td colspan="2">${ex.description}</td><td class="text-right">${formatCurrency(ex.amount)}</td></tr>`).join('')}
+                            <tr class="total-row"><td colspan="3">Total Pengeluaran</td><td class="text-right">${formatCurrency(totalExpenses)}</td></tr>
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        });
+
+        // Receivables
+        const calculateReceivableForLease = (lease) => {
+            const start = new Date(lease.startDate);
+            const today = new Date();
+            if (start > today) return { totalDue: 0, totalPaid: 0, outstanding: 0 };
+            const monthsPassed = Math.max(0, (today.getFullYear() - start.getFullYear()) * 12 + today.getMonth() - start.getMonth() + 1);
+            const totalDue = monthsPassed * lease.monthlyRent;
+            const leasePayments = window.payments.filter(p => p.leaseId === lease.id);
+            const totalPaid = leasePayments.reduce((sum, p) => sum + p.amount, 0);
+            return { totalDue, totalPaid, outstanding: Math.max(0, totalDue - totalPaid) };
+        };
+
+        const renderReceivables = () => {
+            const tbody = document.getElementById('receivables-table-body');
+            const activeLeases = window.leases.filter(l => l.status === 'active');
+            tbody.innerHTML = activeLeases.length ? activeLeases.map(lease => {
+                const { totalDue, totalPaid, outstanding } = calculateReceivableForLease(lease);
+                if (outstanding <= 0) return '';
+                const tenant = window.tenants.find(t => t.id === lease.tenantId);
+                const property = window.properties.find(p => p.id === lease.propertyId);
+                return `
+                    <tr>
+                        <td>${tenant?.name || 'N/A'}</td>
+                        <td>${property?.name || 'N/A'}</td>
+                        <td>${formatCurrency(totalDue)}</td>
+                        <td>${formatCurrency(totalPaid)}</td>
+                        <td class="text-right" style="color:#ef4444;">${formatCurrency(outstanding)}</td>
+                    </tr>
+                `;
+            }).filter(row => row).join('') || `<tr><td colspan="5" style="text-align:center; padding: 1rem; color: #6b7280;">Tidak ada piutang.</td></tr>` : `<tr><td colspan="5" style="text-align:center; padding: 1rem; color: #6b7280;">Tidak ada sewa aktif.</td></tr>`;
+            document.getElementById('print-receivables-btn').classList.toggle('hidden', !activeLeases.some(l => calculateReceivableForLease(l).outstanding > 0));
+        };
+
+        document.getElementById('recalculate-receivables-btn').addEventListener('click', () => {
+            renderReceivables();
+            showAlert('Laporan piutang telah diperbarui.');
+        });
+
+        document.getElementById('print-receivables-btn').addEventListener('click', () => {
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Laporan Piutang Penyewa</title>
+                    <style>
+                        body { font-family: 'Inter', sans-serif; font-size: 12px; }
+                        h1, h2 { text-align: center; margin: 12px 0; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 8px; }
+                        th { background-color: #f2f2f2; }
+                        .total-row { font-weight: bold; background-color: #f9f9f9; }
+                        .text-right { text-align: right; }
+                        .text-red { color: #dc2626; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Laporan Piutang Penyewa</h1>
+                    <h2>Per Tanggal: ${formatDate(getTodayDateString())}</h2>
+                    <table>
+                        <thead><tr><th>Penyewa</th><th>Properti</th><th class="text-right">Total Tagihan</th><th class="text-right">Total Bayar</th><th class="text-right">Tunggakan</th></tr></thead>
+                        <tbody>
+                            ${window.leases.filter(l => l.status === 'active').map(lease => {
+                                const { totalDue, totalPaid, outstanding } = calculateReceivableForLease(lease);
+                                if (outstanding <= 0) return '';
+                                const tenant = window.tenants.find(t => t.id === lease.tenantId);
+                                const property = window.properties.find(p => p.id === lease.propertyId);
+                                return `
+                                    <tr>
+                                        <td>${tenant?.name || 'N/A'}</td>
+                                        <td>${property?.name || 'N/A'}</td>
+                                        <td class="text-right">${formatCurrency(totalDue)}</td>
+                                        <td class="text-right">${formatCurrency(totalPaid)}</td>
+                                        <td class="text-right text-red">${formatCurrency(outstanding)}</td>
+                                    </tr>
+                                `;
+                            }).filter(row => row).join('')}
+                            <tr class="total-row">
+                                <td colspan="4">Total Seluruh Piutang</td>
+                                <td class="text-right text-red">${formatCurrency(window.leases.filter(l => l.status === 'active').reduce((sum, l) => sum + calculateReceivableForLease(l).outstanding, 0))}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        });
+
+        // Navigation
+        document.getElementById('navigation').addEventListener('click', (e) => {
+            const navItem = e.target.closest('.nav-item');
+            if (!navItem) return;
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            navItem.classList.add('active');
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.toggle('hidden', view.id !== `view-${navItem.dataset.view}`);
+                view.classList.toggle('active', view.id === `view-${navItem.dataset.view}`);
+            });
+            if (navItem.dataset.view === 'reports') {
+                document.getElementById('report-results').classList.add('hidden');
+                document.getElementById('print-report-btn').classList.add('hidden');
+            }
+            if (navItem.dataset.view === 'receivables') {
+                renderReceivables();
+            }
+        });
+
+        // Initialize
+        renderAll();
+    });
+    </script>
+</body>
+</html>
