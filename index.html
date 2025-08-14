@@ -44,7 +44,7 @@
             background-color: #f1f5f9;
         }
         .table-container {
-            max-height: calc(100vh - 280px); /* Adjusted for search bar */
+            max-height: calc(100vh - 320px); /* Adjusted for filters */
             overflow-y: auto;
         }
     </style>
@@ -74,6 +74,10 @@
                     <i class="fa-solid fa-file-contract w-6"></i>
                     <span class="ml-3">Manajemen Sewa</span>
                 </a>
+                <a href="#" id="nav-akun" class="sidebar-item flex items-center p-3 rounded-lg">
+                    <i class="fa-solid fa-book-bookmark w-6"></i>
+                    <span class="ml-3">Manajemen Akun</span>
+                </a>
                 <a href="#" id="nav-pengeluaran" class="sidebar-item flex items-center p-3 rounded-lg">
                     <i class="fa-solid fa-receipt w-6"></i>
                     <span class="ml-3">Manajemen Pengeluaran</span>
@@ -87,6 +91,10 @@
                     <a href="#" id="nav-laporan-piutang" class="sidebar-item flex items-center p-3 rounded-lg">
                         <i class="fa-solid fa-file-invoice-dollar w-6"></i>
                         <span class="ml-3">Laporan Piutang</span>
+                    </a>
+                    <a href="#" id="nav-laporan-biaya" class="sidebar-item flex items-center p-3 rounded-lg">
+                        <i class="fa-solid fa-chart-pie w-6"></i>
+                        <span class="ml-3">Laporan Biaya</span>
                     </a>
                 </div>
             </nav>
@@ -112,7 +120,7 @@
 // ===================================================================================
 // DATA MANAGEMENT (DATABASE SIMULATION)
 // ===================================================================================
-let kiosData, penyewaData, sewaData, pembayaranData, pengeluaranData;
+let kiosData, penyewaData, sewaData, pembayaranData, pengeluaranData, akunData;
 
 // Function to save all data to localStorage
 function saveData() {
@@ -121,16 +129,17 @@ function saveData() {
     localStorage.setItem('sewaData', JSON.stringify(sewaData));
     localStorage.setItem('pembayaranData', JSON.stringify(pembayaranData));
     localStorage.setItem('pengeluaranData', JSON.stringify(pengeluaranData));
+    localStorage.setItem('akunData', JSON.stringify(akunData));
 }
 
 // Function to load data from localStorage or use default data
 function loadData() {
     const defaultKios = [
-        { id: 1, kode: 'A-01', blok: 'A', ukuran: '3x4', hargaBulan: 500000, hargaTahun: 5500000, status: 'Tersedia' },
-        { id: 2, kode: 'A-02', blok: 'A', ukuran: '3x4', hargaBulan: 500000, hargaTahun: 5500000, status: 'Tersedia' },
-        { id: 3, kode: 'B-01', blok: 'B', ukuran: '4x4', hargaBulan: 700000, hargaTahun: 7700000, status: 'Disewa' },
-        { id: 4, kode: 'C-01', blok: 'C', ukuran: '3x3', hargaBulan: 400000, hargaTahun: 4400000, status: 'Tersedia' },
-        { id: 5, kode: 'D-01', blok: 'D', ukuran: '5x4', hargaBulan: 900000, hargaTahun: 9900000, status: 'Disewa' },
+        { id: 1, kode: 'A-01', blok: 'A', referensi: '3x4 m', hargaBulan: 500000, hargaTahun: 5500000, status: 'Tersedia' },
+        { id: 2, kode: 'A-02', blok: 'A', referensi: '3x4 m', hargaBulan: 500000, hargaTahun: 5500000, status: 'Tersedia' },
+        { id: 3, kode: 'B-01', blok: 'B', referensi: '4x4 m', hargaBulan: 700000, hargaTahun: 7700000, status: 'Disewa' },
+        { id: 4, kode: 'C-01', blok: 'C', referensi: '3x3 m', hargaBulan: 400000, hargaTahun: 4400000, status: 'Tersedia' },
+        { id: 5, kode: 'D-01', blok: 'D', referensi: '5x4 m', hargaBulan: 900000, hargaTahun: 9900000, status: 'Disewa' },
     ];
     const defaultPenyewa = [
         { id: 1, nama: 'Budi Santoso', ktp: '3204123456780001', telepon: '081234567890', alamat: 'Jl. Merdeka No. 10, Bandung' },
@@ -146,15 +155,22 @@ function loadData() {
         { id: 1, sewaId: 1, tglBayar: '2024-01-15', jumlah: 7700000, metode: 'Transfer' },
         { id: 2, sewaId: 2, tglBayar: '2024-07-01', jumlah: 500000, metode: 'Tunai' },
     ];
+    const defaultAkun = [
+        { id: 1, nama: 'Biaya Operasional' },
+        { id: 2, nama: 'Biaya Listrik & Air' },
+        { id: 3, nama: 'Biaya Perbaikan' },
+    ];
     const defaultPengeluaran = [
-        { id: 1, tanggal: '2024-07-05', keterangan: 'Biaya Kebersihan Bulanan', jumlah: 150000 },
-        { id: 2, tanggal: '2024-07-10', keterangan: 'Pembelian Lampu Kios B-01', jumlah: 75000 },
+        { id: 1, tanggal: '2025-07-05', akunId: 1, keterangan: 'Gaji petugas kebersihan', jumlah: 150000 },
+        { id: 2, tanggal: '2025-08-10', akunId: 3, keterangan: 'Pembelian Lampu Kios B-01', jumlah: 75000 },
+        { id: 3, tanggal: '2024-08-10', akunId: 2, keterangan: 'Bayar Listrik', jumlah: 250000 },
     ];
 
     kiosData = JSON.parse(localStorage.getItem('kiosData')) || defaultKios;
     penyewaData = JSON.parse(localStorage.getItem('penyewaData')) || defaultPenyewa;
     sewaData = JSON.parse(localStorage.getItem('sewaData')) || defaultSewa;
     pembayaranData = JSON.parse(localStorage.getItem('pembayaranData')) || defaultPembayaran;
+    akunData = JSON.parse(localStorage.getItem('akunData')) || defaultAkun;
     pengeluaranData = JSON.parse(localStorage.getItem('pengeluaranData')) || defaultPengeluaran;
 }
 
@@ -277,7 +293,7 @@ function renderKios() {
                         <tr>
                             <th class="p-4">Kode Kios</th>
                             <th class="p-4">Blok</th>
-                            <th class="p-4">Ukuran</th>
+                            <th class="p-4">Referensi</th>
                             <th class="p-4">Harga/Bulan</th>
                             <th class="p-4">Harga/Tahun</th>
                             <th class="p-4">Status</th>
@@ -294,7 +310,7 @@ function renderKios() {
         <tr class="border-b hover:bg-gray-50">
             <td class="p-4 font-medium text-gray-800">${kios.kode}</td>
             <td class="p-4">${kios.blok}</td>
-            <td class="p-4">${kios.ukuran} m</td>
+            <td class="p-4">${kios.referensi}</td>
             <td class="p-4">${formatRupiah(kios.hargaBulan)}</td>
             <td class="p-4">${formatRupiah(kios.hargaTahun)}</td>
             <td class="p-4">
@@ -446,8 +462,46 @@ function updateSewaTable() {
     }).join('');
 }
 
-function renderPengeluaran() {
+function renderAkun() {
     mainContent.innerHTML = `
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Manajemen Akun Biaya</h1>
+            <button onclick="showAkunModal()" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow">
+                <i class="fa-solid fa-plus mr-2"></i>Tambah Akun
+            </button>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="table-container">
+                <table class="w-full table-auto text-left">
+                    <thead class="text-gray-600 bg-gray-100">
+                        <tr>
+                            <th class="p-4">Nama Akun</th>
+                            <th class="p-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="akun-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    `;
+    updateAkunTable();
+}
+
+function updateAkunTable() {
+    const tableBody = document.getElementById('akun-table-body');
+    tableBody.innerHTML = akunData.map(akun => `
+        <tr class="border-b hover:bg-gray-50">
+            <td class="p-4 font-medium text-gray-800">${akun.nama}</td>
+            <td class="p-4 text-center">
+                <button onclick="showAkunModal(${akun.id})" class="text-blue-600 hover:text-blue-800 mr-4"><i class="fa-solid fa-pencil"></i></button>
+                <button onclick="deleteAkun(${akun.id})" class="text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function renderPengeluaran() {
+     mainContent.innerHTML = `
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800">Manajemen Pengeluaran</h1>
             <button onclick="showPengeluaranModal()" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow">
@@ -460,6 +514,7 @@ function renderPengeluaran() {
                     <thead class="text-gray-600 bg-gray-100">
                         <tr>
                             <th class="p-4">Tanggal</th>
+                            <th class="p-4">Akun</th>
                             <th class="p-4">Keterangan</th>
                             <th class="p-4 text-right">Jumlah</th>
                             <th class="p-4 text-center">Aksi</th>
@@ -475,17 +530,109 @@ function renderPengeluaran() {
 
 function updatePengeluaranTable() {
     const tableBody = document.getElementById('pengeluaran-table-body');
-    tableBody.innerHTML = pengeluaranData.map(p => `
-        <tr class="border-b hover:bg-gray-50">
-            <td class="p-4">${formatDate(p.tanggal)}</td>
-            <td class="p-4 font-medium text-gray-800">${p.keterangan}</td>
-            <td class="p-4 text-right">${formatRupiah(p.jumlah)}</td>
-            <td class="p-4 text-center">
-                <button onclick="showPengeluaranModal(${p.id})" class="text-blue-600 hover:text-blue-800 mr-4"><i class="fa-solid fa-pencil"></i></button>
-                <button onclick="deletePengeluaran(${p.id})" class="text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
-            </td>
-        </tr>
-    `).join('');
+    pengeluaranData.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+    tableBody.innerHTML = pengeluaranData.map(p => {
+        const akun = akunData.find(a => a.id === p.akunId);
+        return `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-4">${formatDate(p.tanggal)}</td>
+                <td class="p-4 font-semibold text-gray-600">${akun ? akun.nama : 'N/A'}</td>
+                <td class="p-4 text-gray-800">${p.keterangan}</td>
+                <td class="p-4 text-right">${formatRupiah(p.jumlah)}</td>
+                <td class="p-4 text-center">
+                    <button onclick="showPengeluaranModal(${p.id})" class="text-blue-600 hover:text-blue-800 mr-4"><i class="fa-solid fa-pencil"></i></button>
+                    <button onclick="deletePengeluaran(${p.id})" class="text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function renderLaporanBiaya() {
+    mainContent.innerHTML = `
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Laporan Biaya</h1>
+            <button id="export-biaya-pdf" class="btn bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow">
+                <i class="fa-solid fa-file-pdf mr-2"></i>Export PDF
+            </button>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="mb-4 flex items-end space-x-4">
+                <div>
+                    <label for="filter-bulan" class="block text-sm font-medium text-gray-700">Bulan</label>
+                    <select id="filter-bulan" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <option value="">Semua</option>
+                        <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option><option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option><option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option><option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="filter-tahun" class="block text-sm font-medium text-gray-700">Tahun</label>
+                    <input type="number" id="filter-tahun" placeholder="Contoh: 2025" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <button id="filter-biaya" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow">Filter</button>
+                <button id="reset-filter-biaya" class="btn bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg shadow">Reset</button>
+            </div>
+            <div class="table-container">
+                <table class="w-full table-auto text-left" id="tabel-laporan-biaya">
+                    <thead class="text-gray-600 bg-gray-100">
+                        <tr>
+                            <th class="p-4">Tanggal</th>
+                            <th class="p-4">Akun</th>
+                            <th class="p-4">Keterangan</th>
+                            <th class="p-4 text-right">Jumlah</th>
+                        </tr>
+                    </thead>
+                    <tbody id="laporan-biaya-table-body"></tbody>
+                    <tfoot class="font-bold bg-gray-100">
+                        <tr>
+                            <td colspan="3" class="p-4 text-right">Total Pengeluaran</td>
+                            <td id="total-laporan-biaya" class="p-4 text-right"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    `;
+    document.getElementById('filter-biaya').addEventListener('click', updateLaporanBiayaTable);
+    document.getElementById('reset-filter-biaya').addEventListener('click', () => {
+        document.getElementById('filter-bulan').value = '';
+        document.getElementById('filter-tahun').value = '';
+        updateLaporanBiayaTable();
+    });
+    document.getElementById('export-biaya-pdf').addEventListener('click', exportLaporanBiayaToPDF);
+    updateLaporanBiayaTable();
+}
+
+function updateLaporanBiayaTable() {
+    const tableBody = document.getElementById('laporan-biaya-table-body');
+    const selectedMonth = document.getElementById('filter-bulan').value;
+    const selectedYear = document.getElementById('filter-tahun').value;
+
+    let filteredData = pengeluaranData;
+
+    if (selectedYear) {
+        filteredData = filteredData.filter(p => new Date(p.tanggal).getFullYear() == selectedYear);
+    }
+    if (selectedMonth !== '') {
+        filteredData = filteredData.filter(p => new Date(p.tanggal).getMonth() == selectedMonth);
+    }
+
+    filteredData.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+
+    let total = 0;
+    tableBody.innerHTML = filteredData.map(p => {
+        const akun = akunData.find(a => a.id === p.akunId);
+        total += p.jumlah;
+        return `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-4">${formatDate(p.tanggal)}</td>
+                <td class="p-4 font-semibold text-gray-600">${akun ? akun.nama : 'N/A'}</td>
+                <td class="p-4 text-gray-800">${p.keterangan}</td>
+                <td class="p-4 text-right">${formatRupiah(p.jumlah)}</td>
+            </tr>
+        `;
+    }).join('');
+    document.getElementById('total-laporan-biaya').textContent = formatRupiah(total);
 }
 
 
@@ -518,25 +665,22 @@ function renderLaporanKeuangan() {
                 <table class="w-full table-auto text-left" id="tabel-keuangan">
                     <thead class="text-gray-600 bg-gray-100">
                         <tr>
-                            <th class="p-4">Tanggal</th>
-                            <th class="p-4">Keterangan</th>
-                            <th class="p-4 text-right">Debit (Pemasukan)</th>
-                            <th class="p-4 text-right">Kredit (Pengeluaran)</th>
+                            <th class="p-4">Akun</th>
+                            <th class="p-4 text-right">Jumlah</th>
                         </tr>
                     </thead>
                     <tbody id="keuangan-table-body"></tbody>
                     <tfoot class="font-bold bg-gray-100">
-                        <tr>
-                            <td colspan="2" class="p-4 text-right">Total Pemasukan</td>
+                        <tr class="border-t-2">
+                            <td class="p-4 text-right">Total Pendapatan</td>
                             <td id="total-pemasukan" class="p-4 text-right text-green-600"></td>
-                            <td></td>
                         </tr>
                         <tr>
-                            <td colspan="3" class="p-4 text-right">Total Pengeluaran</td>
+                            <td class="p-4 text-right">Total Biaya</td>
                             <td id="total-pengeluaran" class="p-4 text-right text-red-600"></td>
                         </tr>
-                        <tr class="border-t-2 border-gray-300">
-                            <td colspan="3" class="p-4 text-right">Saldo Akhir</td>
+                        <tr class="border-t-2 border-gray-300 bg-gray-200">
+                            <td class="p-4 text-right">Laba / Rugi Bersih</td>
                             <td id="saldo-akhir" class="p-4 text-right"></td>
                         </tr>
                     </tfoot>
@@ -555,57 +699,42 @@ function updateLaporanKeuangan() {
     const startDate = document.getElementById('start-date-keuangan').value;
     const endDate = document.getElementById('end-date-keuangan').value;
 
-    const pemasukan = pembayaranData.map(p => {
-        const sewa = sewaData.find(s => s.id === p.sewaId);
-        const penyewa = sewa ? penyewaData.find(py => py.id === sewa.penyewaId) : null;
-        return {
-            tanggal: p.tglBayar,
-            keterangan: `Pembayaran sewa dari ${penyewa ? penyewa.nama : 'N/A'}`,
-            debit: p.jumlah,
-            kredit: 0
-        };
-    });
+    let filteredPembayaran = pembayaranData;
+    if (startDate) filteredPembayaran = filteredPembayaran.filter(t => t.tglBayar >= startDate);
+    if (endDate) filteredPembayaran = filteredPembayaran.filter(t => t.tglBayar <= endDate);
+    const totalPemasukan = filteredPembayaran.reduce((sum, p) => sum + p.jumlah, 0);
 
-    const pengeluaran = pengeluaranData.map(p => ({
-        tanggal: p.tanggal,
-        keterangan: p.keterangan,
-        debit: 0,
-        kredit: p.jumlah
-    }));
+    let filteredPengeluaran = pengeluaranData;
+    if (startDate) filteredPengeluaran = filteredPengeluaran.filter(t => t.tanggal >= startDate);
+    if (endDate) filteredPengeluaran = filteredPengeluaran.filter(t => t.tanggal <= endDate);
 
-    let allTransactions = [...pemasukan, ...pengeluaran];
+    const biayaPerAkun = akunData.map(akun => {
+        const total = filteredPengeluaran
+            .filter(p => p.akunId === akun.id)
+            .reduce((sum, p) => sum + p.jumlah, 0);
+        return { nama: akun.nama, total };
+    }).filter(a => a.total > 0);
 
-    if (startDate) {
-        allTransactions = allTransactions.filter(t => t.tanggal >= startDate);
-    }
-    if (endDate) {
-        allTransactions = allTransactions.filter(t => t.tanggal <= endDate);
-    }
-
-    allTransactions.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+    const totalPengeluaran = biayaPerAkun.reduce((sum, a) => sum + a.total, 0);
     
     const tableBody = document.getElementById('keuangan-table-body');
-    let totalPemasukan = 0;
-    let totalPengeluaran = 0;
+    let tableHTML = `<tr class="bg-gray-100 font-bold"><td class="p-4" colspan="2">Pendapatan</td></tr>`;
+    tableHTML += `<tr><td class="p-4 pl-8">Pendapatan Sewa</td><td class="p-4 text-right">${formatRupiah(totalPemasukan)}</td></tr>`;
+    
+    if (biayaPerAkun.length > 0) {
+        tableHTML += `<tr class="bg-gray-100 font-bold"><td class="p-4" colspan="2">Biaya - Biaya</td></tr>`;
+        biayaPerAkun.forEach(akun => {
+            tableHTML += `<tr><td class="p-4 pl-8">${akun.nama}</td><td class="p-4 text-right">(${formatRupiah(akun.total)})</td></tr>`;
+        });
+    }
 
-    tableBody.innerHTML = allTransactions.map(t => {
-        totalPemasukan += t.debit;
-        totalPengeluaran += t.kredit;
-        return `
-            <tr class="border-b hover:bg-gray-50">
-                <td class="p-4">${formatDate(t.tanggal)}</td>
-                <td class="p-4">${t.keterangan}</td>
-                <td class="p-4 text-right text-green-600">${t.debit > 0 ? formatRupiah(t.debit) : '-'}</td>
-                <td class="p-4 text-right text-red-600">${t.kredit > 0 ? formatRupiah(t.kredit) : '-'}</td>
-            </tr>
-        `;
-    }).join('');
+    tableBody.innerHTML = tableHTML;
 
     const saldoAkhir = totalPemasukan - totalPengeluaran;
     document.getElementById('total-pemasukan').textContent = formatRupiah(totalPemasukan);
-    document.getElementById('total-pengeluaran').textContent = formatRupiah(totalPengeluaran);
+    document.getElementById('total-pengeluaran').textContent = `(${formatRupiah(totalPengeluaran)})`;
     document.getElementById('saldo-akhir').textContent = formatRupiah(saldoAkhir);
-    document.getElementById('saldo-akhir').className = `p-4 text-right ${saldoAkhir >= 0 ? 'text-blue-600' : 'text-red-600'}`;
+    document.getElementById('saldo-akhir').className = `p-4 text-right font-bold ${saldoAkhir >= 0 ? 'text-blue-600' : 'text-red-600'}`;
 }
 
 function renderLaporanPiutang() {
@@ -721,8 +850,8 @@ function showKiosModal(id = null) {
                     </select>
                 </div>
                 <div>
-                    <label for="ukuran" class="block text-sm font-medium text-gray-700">Ukuran (e.g., 3x4)</label>
-                    <input type="text" id="ukuran" value="${kios.ukuran || ''}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    <label for="referensi" class="block text-sm font-medium text-gray-700">Referensi (e.g., 3x4 m)</label>
+                    <input type="text" id="referensi" value="${kios.referensi || ''}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                 </div>
                 <div>
                     <label for="hargaBulan" class="block text-sm font-medium text-gray-700">Harga Sewa / Bulan</label>
@@ -749,7 +878,7 @@ function saveKios(e) {
     const newKios = {
         kode: document.getElementById('kode').value,
         blok: document.getElementById('blok').value,
-        ukuran: document.getElementById('ukuran').value,
+        referensi: document.getElementById('referensi').value,
         hargaBulan: parseInt(document.getElementById('hargaBulan').value),
         hargaTahun: parseInt(document.getElementById('hargaTahun').value),
     };
@@ -1024,10 +1153,73 @@ function savePembayaran(e) {
     navigate(document.querySelector('.sidebar-item.active').id.replace('nav-', ''));
 }
 
+// --- AKUN ---
+function showAkunModal(id = null) {
+    const isEdit = id !== null;
+    const akun = isEdit ? akunData.find(a => a.id === id) : {};
+    const modalContent = `
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
+            <div class="p-6 border-b">
+                <h2 class="text-2xl font-bold text-gray-800">${isEdit ? 'Edit Akun' : 'Tambah Akun Baru'}</h2>
+            </div>
+            <form id="akun-form" class="p-6 space-y-4">
+                <input type="hidden" id="akun-id" value="${akun.id || ''}">
+                <div>
+                    <label for="nama-akun" class="block text-sm font-medium text-gray-700">Nama Akun</label>
+                    <input type="text" id="nama-akun" value="${akun.nama || ''}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                </div>
+                <div class="pt-4 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal()" class="btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">Batal</button>
+                    <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">${isEdit ? 'Update' : 'Simpan'}</button>
+                </div>
+            </form>
+        </div>
+    `;
+    openModal(modalContent);
+    document.getElementById('akun-form').addEventListener('submit', saveAkun);
+}
+
+function saveAkun(e) {
+    e.preventDefault();
+    const id = document.getElementById('akun-id').value;
+    const nama = document.getElementById('nama-akun').value;
+
+    if (id) {
+        const index = akunData.findIndex(a => a.id == id);
+        akunData[index].nama = nama;
+        showToast('Akun berhasil diperbarui.');
+    } else {
+        const newAkun = {
+            id: akunData.length > 0 ? Math.max(...akunData.map(a => a.id)) + 1 : 1,
+            nama: nama,
+        };
+        akunData.push(newAkun);
+        showToast('Akun baru berhasil ditambahkan.');
+    }
+    saveData();
+    closeModal();
+    renderAkun();
+}
+
+function deleteAkun(id) {
+    if (pengeluaranData.some(p => p.akunId === id)) {
+        showToast('Akun tidak dapat dihapus karena sedang digunakan dalam data pengeluaran.', true);
+        return;
+    }
+    if (confirm('Apakah Anda yakin ingin menghapus akun ini?')) {
+        akunData = akunData.filter(a => a.id !== id);
+        saveData();
+        showToast('Akun berhasil dihapus.');
+        renderAkun();
+    }
+}
+
 // --- PENGELUARAN ---
 function showPengeluaranModal(id = null) {
     const isEdit = id !== null;
     const pengeluaran = isEdit ? pengeluaranData.find(p => p.id === id) : {};
+    const akunOptions = akunData.map(a => `<option value="${a.id}" ${pengeluaran && pengeluaran.akunId === a.id ? 'selected' : ''}>${a.nama}</option>`).join('');
+
     const modalContent = `
         <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
             <div class="p-6 border-b">
@@ -1038,6 +1230,10 @@ function showPengeluaranModal(id = null) {
                 <div>
                     <label for="tanggal-pengeluaran" class="block text-sm font-medium text-gray-700">Tanggal</label>
                     <input type="date" id="tanggal-pengeluaran" value="${pengeluaran.tanggal || new Date().toISOString().split('T')[0]}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                </div>
+                <div>
+                    <label for="akunId-pengeluaran" class="block text-sm font-medium text-gray-700">Akun Biaya</label>
+                    <select id="akunId-pengeluaran" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">${akunOptions}</select>
                 </div>
                 <div>
                     <label for="keterangan-pengeluaran" class="block text-sm font-medium text-gray-700">Keterangan</label>
@@ -1063,6 +1259,7 @@ function savePengeluaran(e) {
     const id = document.getElementById('pengeluaran-id').value;
     const data = {
         tanggal: document.getElementById('tanggal-pengeluaran').value,
+        akunId: parseInt(document.getElementById('akunId-pengeluaran').value),
         keterangan: document.getElementById('keterangan-pengeluaran').value,
         jumlah: parseInt(document.getElementById('jumlah-pengeluaran').value),
     };
@@ -1094,6 +1291,32 @@ function deletePengeluaran(id) {
 // ===================================================================================
 // EXPORT FUNCTIONS
 // ===================================================================================
+function exportLaporanBiayaToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    const bulanSelect = document.getElementById('filter-bulan');
+    const tahunInput = document.getElementById('filter-tahun');
+    let title = "Laporan Biaya - Semua Periode";
+    if (tahunInput.value) {
+        if (bulanSelect.value !== '') {
+            const bulanText = bulanSelect.options[bulanSelect.selectedIndex].text;
+            title = `Laporan Biaya - ${bulanText} ${tahunInput.value}`;
+        } else {
+            title = `Laporan Biaya - Tahun ${tahunInput.value}`;
+        }
+    }
+
+    doc.text(title, 14, 16);
+    doc.autoTable({
+        html: '#tabel-laporan-biaya',
+        startY: 20,
+        theme: 'grid',
+        headStyles: { fillColor: [22, 160, 133] },
+    });
+    doc.save('laporan-biaya.pdf');
+}
+
 function exportKeuanganToPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -1157,6 +1380,9 @@ function navigate(view) {
         case 'sewa':
             renderSewa();
             break;
+        case 'akun':
+            renderAkun();
+            break;
         case 'pengeluaran':
             renderPengeluaran();
             break;
@@ -1165,6 +1391,9 @@ function navigate(view) {
             break;
         case 'laporan-piutang':
             renderLaporanPiutang();
+            break;
+        case 'laporan-biaya':
+            renderLaporanBiaya();
             break;
         case 'dashboard':
         default:
