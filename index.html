@@ -135,15 +135,15 @@ function saveData() {
 // Function to load data from localStorage or use default data
 function loadData() {
     const defaultKios = [
-        { id: 1, kode: 'A-01', blok: 'A', referensi: '3x4 m', hargaBulan: 500000, hargaTahun: 5500000, status: 'Tersedia' },
-        { id: 2, kode: 'A-02', blok: 'A', referensi: '3x4 m', hargaBulan: 500000, hargaTahun: 5500000, status: 'Tersedia' },
-        { id: 3, kode: 'B-01', blok: 'B', referensi: '4x4 m', hargaBulan: 700000, hargaTahun: 7700000, status: 'Disewa' },
-        { id: 4, kode: 'C-01', blok: 'C', referensi: '3x3 m', hargaBulan: 400000, hargaTahun: 4400000, status: 'Tersedia' },
-        { id: 5, kode: 'D-01', blok: 'D', referensi: '5x4 m', hargaBulan: 900000, hargaTahun: 9900000, status: 'Disewa' },
+        { id: 1, kode: 'A-01', blok: 'A', referensi: 'Warung Baso', hargaBulan: 500000, hargaTahun: 5500000, status: 'Tersedia' },
+        { id: 2, kode: 'A-02', blok: 'A', referensi: 'Warung', hargaBulan: 500000, hargaTahun: 5500000, status: 'Tersedia' },
+        { id: 3, kode: 'B-01', blok: 'B', referensi: 'Warung', hargaBulan: 700000, hargaTahun: 7700000, status: 'Disewa' },
+        { id: 4, kode: 'C-01', blok: 'C', referensi: 'Warung', hargaBulan: 400000, hargaTahun: 4400000, status: 'Tersedia' },
+        { id: 5, kode: 'D-01', blok: 'D', referensi: 'Warung', hargaBulan: 900000, hargaTahun: 9900000, status: 'Disewa' },
     ];
     const defaultPenyewa = [
-        { id: 1, nama: 'Budi Santoso', ktp: '3204123456780001', telepon: '081234567890', alamat: 'Jl. Merdeka No. 10, Bandung' },
-        { id: 2, nama: 'Citra Lestari', ktp: '3204123456780002', telepon: '085678901234', alamat: 'Jl. Asia Afrika No. 25, Bandung' },
+        { id: 1, nama: 'Sarimilo', ktp: '3204123456780001', telepon: '081234567890', alamat: 'Jl. Merdeka No. 10, Bandung' },
+        { id: 2, nama: 'Aji/Ayi', ktp: '3204123456780002', telepon: '085678901234', alamat: 'Jl. Asia Afrika No. 25, Bandung' },
     ];
     let soonExpiringDate = new Date();
     soonExpiringDate.setDate(soonExpiringDate.getDate() + 15);
