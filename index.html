@@ -110,39 +110,54 @@
 
 <script>
 // ===================================================================================
-// INITIAL DATA (DATABASE SIMULATION)
+// DATA MANAGEMENT (DATABASE SIMULATION)
 // ===================================================================================
-let kiosData = [
-    { id: 1, kode: 'A-01', blok: 'A', ukuran: '3x4', hargaBulan: 500000, hargaTahun: 5500000, status: 'Tersedia' },
-    { id: 2, kode: 'A-02', blok: 'A', ukuran: '3x4', hargaBulan: 500000, hargaTahun: 5500000, status: 'Tersedia' },
-    { id: 3, kode: 'B-01', blok: 'B', ukuran: '4x4', hargaBulan: 700000, hargaTahun: 7700000, status: 'Disewa' },
-    { id: 4, kode: 'C-01', blok: 'C', ukuran: '3x3', hargaBulan: 400000, hargaTahun: 4400000, status: 'Tersedia' },
-    { id: 5, kode: 'D-01', blok: 'D', ukuran: '5x4', hargaBulan: 900000, hargaTahun: 9900000, status: 'Disewa' },
-];
+let kiosData, penyewaData, sewaData, pembayaranData, pengeluaranData;
 
-let penyewaData = [
-    { id: 1, nama: 'Budi Santoso', ktp: '3204123456780001', telepon: '081234567890', alamat: 'Jl. Merdeka No. 10, Bandung' },
-    { id: 2, nama: 'Citra Lestari', ktp: '3204123456780002', telepon: '085678901234', alamat: 'Jl. Asia Afrika No. 25, Bandung' },
-];
+// Function to save all data to localStorage
+function saveData() {
+    localStorage.setItem('kiosData', JSON.stringify(kiosData));
+    localStorage.setItem('penyewaData', JSON.stringify(penyewaData));
+    localStorage.setItem('sewaData', JSON.stringify(sewaData));
+    localStorage.setItem('pembayaranData', JSON.stringify(pembayaranData));
+    localStorage.setItem('pengeluaranData', JSON.stringify(pengeluaranData));
+}
 
-// Example: One contract expiring soon
-let soonExpiringDate = new Date();
-soonExpiringDate.setDate(soonExpiringDate.getDate() + 15);
+// Function to load data from localStorage or use default data
+function loadData() {
+    const defaultKios = [
+        { id: 1, kode: 'A-01', blok: 'A', ukuran: '3x4', hargaBulan: 500000, hargaTahun: 5500000, status: 'Tersedia' },
+        { id: 2, kode: 'A-02', blok: 'A', ukuran: '3x4', hargaBulan: 500000, hargaTahun: 5500000, status: 'Tersedia' },
+        { id: 3, kode: 'B-01', blok: 'B', ukuran: '4x4', hargaBulan: 700000, hargaTahun: 7700000, status: 'Disewa' },
+        { id: 4, kode: 'C-01', blok: 'C', ukuran: '3x3', hargaBulan: 400000, hargaTahun: 4400000, status: 'Tersedia' },
+        { id: 5, kode: 'D-01', blok: 'D', ukuran: '5x4', hargaBulan: 900000, hargaTahun: 9900000, status: 'Disewa' },
+    ];
+    const defaultPenyewa = [
+        { id: 1, nama: 'Budi Santoso', ktp: '3204123456780001', telepon: '081234567890', alamat: 'Jl. Merdeka No. 10, Bandung' },
+        { id: 2, nama: 'Citra Lestari', ktp: '3204123456780002', telepon: '085678901234', alamat: 'Jl. Asia Afrika No. 25, Bandung' },
+    ];
+    let soonExpiringDate = new Date();
+    soonExpiringDate.setDate(soonExpiringDate.getDate() + 15);
+    const defaultSewa = [
+        { id: 1, kiosId: 3, penyewaId: 1, tipe: 'Tahunan', tglMulai: '2024-01-15', tglSelesai: soonExpiringDate.toISOString().split('T')[0], totalTagihan: 7700000, status: 'Aktif' },
+        { id: 2, kiosId: 5, penyewaId: 2, tipe: 'Bulanan', tglMulai: '2025-07-01', tglSelesai: '2025-08-01', totalTagihan: 900000, status: 'Aktif' },
+    ];
+    const defaultPembayaran = [
+        { id: 1, sewaId: 1, tglBayar: '2024-01-15', jumlah: 7700000, metode: 'Transfer' },
+        { id: 2, sewaId: 2, tglBayar: '2024-07-01', jumlah: 500000, metode: 'Tunai' },
+    ];
+    const defaultPengeluaran = [
+        { id: 1, tanggal: '2024-07-05', keterangan: 'Biaya Kebersihan Bulanan', jumlah: 150000 },
+        { id: 2, tanggal: '2024-07-10', keterangan: 'Pembelian Lampu Kios B-01', jumlah: 75000 },
+    ];
 
-let sewaData = [
-    { id: 1, kiosId: 3, penyewaId: 1, tipe: 'Tahunan', tglMulai: '2024-01-15', tglSelesai: soonExpiringDate.toISOString().split('T')[0], totalTagihan: 7700000, status: 'Aktif' },
-    { id: 2, kiosId: 5, penyewaId: 2, tipe: 'Bulanan', tglMulai: '2025-07-01', tglSelesai: '2025-08-01', totalTagihan: 900000, status: 'Aktif' },
-];
+    kiosData = JSON.parse(localStorage.getItem('kiosData')) || defaultKios;
+    penyewaData = JSON.parse(localStorage.getItem('penyewaData')) || defaultPenyewa;
+    sewaData = JSON.parse(localStorage.getItem('sewaData')) || defaultSewa;
+    pembayaranData = JSON.parse(localStorage.getItem('pembayaranData')) || defaultPembayaran;
+    pengeluaranData = JSON.parse(localStorage.getItem('pengeluaranData')) || defaultPengeluaran;
+}
 
-let pembayaranData = [
-    { id: 1, sewaId: 1, tglBayar: '2024-01-15', jumlah: 7700000, metode: 'Transfer' },
-    { id: 2, sewaId: 2, tglBayar: '2024-07-01', jumlah: 500000, metode: 'Tunai' },
-];
-
-let pengeluaranData = [
-    { id: 1, tanggal: '2024-07-05', keterangan: 'Biaya Kebersihan Bulanan', jumlah: 150000 },
-    { id: 2, tanggal: '2024-07-10', keterangan: 'Pembelian Lampu Kios B-01', jumlah: 75000 },
-];
 
 // ===================================================================================
 // UTILITY FUNCTIONS
@@ -150,7 +165,6 @@ let pengeluaranData = [
 const formatRupiah = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
 const formatDate = (dateString) => new Date(dateString).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
 
-// Toast notification
 function showToast(message, isError = false) {
     const toast = document.getElementById('toast');
     const toastMessage = document.getElementById('toast-message');
@@ -162,7 +176,6 @@ function showToast(message, isError = false) {
     }, 3000);
 }
 
-// Modal handling
 const modalContainer = document.getElementById('modal-container');
 function openModal(content) {
     modalContainer.innerHTML = content;
@@ -751,6 +764,7 @@ function saveKios(e) {
         kiosData.push(newKios);
         showToast('Kios baru berhasil ditambahkan.');
     }
+    saveData();
     closeModal();
     renderKios();
 }
@@ -762,6 +776,7 @@ function deleteKios(id) {
             return;
         }
         kiosData = kiosData.filter(k => k.id !== id);
+        saveData();
         showToast('Data kios berhasil dihapus.');
         renderKios();
     }
@@ -824,6 +839,7 @@ function savePenyewa(e) {
         penyewaData.push(newPenyewa);
         showToast('Penyewa baru berhasil ditambahkan.');
     }
+    saveData();
     closeModal();
     renderPenyewa();
 }
@@ -835,6 +851,7 @@ function deletePenyewa(id) {
             return;
         }
         penyewaData = penyewaData.filter(p => p.id !== id);
+        saveData();
         showToast('Data penyewa berhasil dihapus.');
         renderPenyewa();
     }
@@ -915,6 +932,7 @@ function saveSewa(e) {
     const kiosIndex = kiosData.findIndex(k => k.id === kiosId);
     kiosData[kiosIndex].status = 'Disewa';
 
+    saveData();
     showToast('Kontrak sewa baru berhasil dibuat.');
     closeModal();
     navigate('sewa');
@@ -933,6 +951,7 @@ function deleteSewa(id) {
         sewaData = sewaData.filter(s => s.id !== id);
         pembayaranData = pembayaranData.filter(p => p.sewaId !== id);
         
+        saveData();
         showToast('Kontrak sewa berhasil dihapus.');
         renderSewa();
     }
@@ -999,6 +1018,7 @@ function savePembayaran(e) {
         metode: document.getElementById('metodeBayar').value,
     };
     pembayaranData.push(newPembayaran);
+    saveData();
     showToast('Pembayaran berhasil dicatat.');
     closeModal();
     navigate(document.querySelector('.sidebar-item.active').id.replace('nav-', ''));
@@ -1056,6 +1076,7 @@ function savePengeluaran(e) {
         pengeluaranData.push(data);
         showToast('Pengeluaran baru berhasil ditambahkan.');
     }
+    saveData();
     closeModal();
     renderPengeluaran();
 }
@@ -1063,6 +1084,7 @@ function savePengeluaran(e) {
 function deletePengeluaran(id) {
     if (confirm('Apakah Anda yakin ingin menghapus data pengeluaran ini?')) {
         pengeluaranData = pengeluaranData.filter(p => p.id !== id);
+        saveData();
         showToast('Data pengeluaran berhasil dihapus.');
         renderPengeluaran();
     }
@@ -1161,6 +1183,7 @@ navLinks.forEach(link => {
 
 // Initial load
 document.addEventListener('DOMContentLoaded', () => {
+    loadData(); // Load data from localStorage on startup
     navigate('dashboard');
 });
 
