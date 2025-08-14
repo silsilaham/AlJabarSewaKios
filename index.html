@@ -3,1354 +3,1168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Sewa Kios Al Jabar </title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Aplikasi Sewa Kios Al Jabar</title>
+    
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- SheetJS (xlsx) for Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <style>
-        /* Reset & Global Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* Custom styles for a better look and feel */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f9fafb;
-            color: #1f2937;
-            font-size: 16px;
         }
-        button, input, select, textarea {
-            font-family: inherit;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        .sidebar-item {
+            transition: all 0.2s ease-in-out;
         }
-        .hidden {
-            display: none !important;
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: #1d4ed8; /* darker blue */
+            color: white;
         }
-        .modal.active {
-            display: flex;
-        }
-
-        /* Main Layout */
-        .app-container {
-            display: flex;
-            height: 100vh;
-            background-color: #f9fafb;
-        }
-        .sidebar {
-            width: 256px;
-            background-color: #ffffff;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-        }
-        .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .sidebar-header h1 {
-            font-size: 1.5rem;
-            line-height: 2rem;
-            font-weight: 700;
-            color: #4f46e5;
-        }
-        .sidebar-header p {
-            font-size: 0.875rem;
-            color: #6b7280;
-        }
-        .sidebar-nav {
-            flex-grow: 1;
-            padding: 1rem;
-        }
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.625rem 1.25rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: background-color 0.2s, color 0.2s;
-            font-weight: 500;
-            color: #374151;
-            text-decoration: none;
-            margin-bottom: 0.5rem;
-        }
-        .nav-item i {
-            width: 1.25rem;
-        }
-        .nav-item:hover {
-            background-color: #eef2ff;
-        }
-        .nav-item.active {
-            background-color: #4f46e5;
-            color: #ffffff;
-        }
-        .sidebar-footer {
-            padding: 1rem;
-            border-top: 1px solid #e5e7eb;
-            font-size: 0.75rem;
-            color: #6b7280;
-        }
-        .main-content {
-            flex-grow: 1;
-            padding: 2rem;
-            overflow-y: auto;
-        }
-
-        /* Page Header */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        .page-header h2 {
-            font-size: 1.875rem;
-            font-weight: 700;
-        }
-
-        /* Buttons */
-        .btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 0.5rem;
-            font-weight: 500;
-            transition: background-color 0.3s, color 0.3s;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-        }
-        .btn-primary { background-color: #4f46e5; color: white; }
-        .btn-primary:hover { background-color: #4338ca; }
-        .btn-secondary { background-color: #e5e7eb; color: #374151; border: 1px solid #d1d5db; }
-        .btn-secondary:hover { background-color: #d1d5db; }
-        .btn-danger { background-color: #ef4444; color: white; }
-        .btn-danger:hover { background-color: #dc2626; }
-        .btn-success { background-color: #22c55e; color: white; }
-        .btn-success:hover { background-color: #16a34a; }
-
-        /* Tables */
-        .table-container {
-            background-color: #ffffff;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        thead {
-            background-color: #f9fafb;
-        }
-        th {
-            padding: 0.75rem 1rem;
-            text-align: left;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #4b5563;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        td {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid #e5e7eb;
-            vertical-align: middle;
-        }
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-        .actions-cell {
-            text-align: right;
-        }
-        .actions-cell .btn {
-            padding: 0.3rem 0.6rem;
-        }
-        .actions-cell .btn + .btn {
-            margin-left: 0.5rem;
-        }
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border-radius: 9999px;
-        }
-        .status-badge.active {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-        .status-badge.inactive {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-
-        /* Dashboard Cards */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-        }
-        .dashboard-card {
-            background-color: #ffffff;
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-        }
-        .dashboard-card-icon {
-            padding: 0.75rem;
-            border-radius: 9999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .dashboard-card-icon i { font-size: 1.5rem; }
-        .icon-indigo { background-color: #e0e7ff; color: #4f46e5; }
-        .icon-green { background-color: #d1fae5; color: #059669; }
-        .icon-blue { background-color: #dbeafe; color: #2563eb; }
-        .icon-red { background-color: #fee2e2; color: #ef4444; }
-        .dashboard-card-content {
-            margin-left: 1rem;
-        }
-        .dashboard-card-content p:first-child {
-            font-size: 0.875rem;
-            color: #6b7280;
-        }
-        .dashboard-card-content p:last-child {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        /* Reports Section */
-        .card {
-            background-color: #ffffff;
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1.5rem;
-        }
-        .report-controls {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: flex-end;
-            gap: 1rem;
-        }
-        .report-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-        }
-        .report-details-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-        @media (min-width: 1024px) { 
-            .report-details-grid { grid-template-columns: repeat(2, 1fr); } 
-        }
-
-        /* Modals */
         .modal {
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            z-index: 50;
+            transition: opacity 0.3s ease;
         }
-        .modal-content {
-            background-color: #ffffff;
-            border-radius: 0.5rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 512px;
+        .btn {
+            transition: all 0.2s ease;
         }
-        .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .table-auto th {
+            position: sticky;
+            top: 0;
+            background-color: #f1f5f9;
         }
-        .modal-header h3 { 
-            font-size: 1.25rem; 
-            font-weight: 700; 
-        }
-        .modal-header button { 
-            background: none; 
-            border: none; 
-            font-size: 1.5rem; 
-            cursor: pointer; 
-            color: #6b7280; 
-        }
-        .modal-body { 
-            padding: 1.5rem; 
-        }
-        .modal-footer {
-            padding: 1.5rem;
-            background-color: #f9fafb;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.75rem;
-        }
-        .form-group { 
-            margin-bottom: 1rem; 
-        }
-        .form-group label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #374151;
-            margin-bottom: 0.25rem;
-        }
-        .form-control {
-            width: 100%;
-            padding: 0.5rem 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        }
-        .text-right { 
-            text-align: right; 
+        .table-container {
+            max-height: calc(100vh - 280px); /* Adjusted for search bar */
+            overflow-y: auto;
         }
     </style>
 </head>
-<body>
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h1>AL JABAR</h1>
-                <p>Data Sewa Kios</p>
+<body class="bg-gray-100">
+
+    <div class="flex h-screen">
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-blue-700 text-white flex flex-col">
+            <div class="p-6 text-2xl font-bold border-b border-blue-600">
+                <i class="fa-solid fa-store mr-2"></i> Kios Al Jabar
             </div>
-            <nav id="navigation" class="sidebar-nav">
-                <a class="nav-item active" data-view="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                <a class="nav-item" data-view="properties"><i class="fas fa-building"></i> Properti</a>
-                <a class="nav-item" data-view="tenants"><i class="fas fa-users"></i> Penyewa</a>
-                <a class="nav-item" data-view="leases"><i class="fas fa-file-contract"></i> Sewa</a>
-                <a class="nav-item" data-view="reports"><i class="fas fa-chart-line"></i> Laporan Keuangan</a>
-                <a class="nav-item" data-view="receivables"><i class="fas fa-file-invoice-dollar"></i> Laporan Piutang</a>
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="#" id="nav-dashboard" class="sidebar-item flex items-center p-3 rounded-lg active">
+                    <i class="fa-solid fa-tachometer-alt w-6"></i>
+                    <span class="ml-3">Dashboard</span>
+                </a>
+                <a href="#" id="nav-kios" class="sidebar-item flex items-center p-3 rounded-lg">
+                    <i class="fa-solid fa-tags w-6"></i>
+                    <span class="ml-3">Manajemen Kios</span>
+                </a>
+                <a href="#" id="nav-penyewa" class="sidebar-item flex items-center p-3 rounded-lg">
+                    <i class="fa-solid fa-users w-6"></i>
+                    <span class="ml-3">Manajemen Penyewa</span>
+                </a>
+                <a href="#" id="nav-sewa" class="sidebar-item flex items-center p-3 rounded-lg">
+                    <i class="fa-solid fa-file-contract w-6"></i>
+                    <span class="ml-3">Manajemen Sewa</span>
+                </a>
+                <a href="#" id="nav-pengeluaran" class="sidebar-item flex items-center p-3 rounded-lg">
+                    <i class="fa-solid fa-receipt w-6"></i>
+                    <span class="ml-3">Manajemen Pengeluaran</span>
+                </a>
+                <div class="pt-4 mt-4 border-t border-blue-600">
+                    <h3 class="px-3 text-xs font-semibold text-blue-200 uppercase tracking-wider">Laporan</h3>
+                    <a href="#" id="nav-laporan-keuangan" class="sidebar-item flex items-center p-3 rounded-lg mt-2">
+                        <i class="fa-solid fa-chart-line w-6"></i>
+                        <span class="ml-3">Laporan Keuangan</span>
+                    </a>
+                    <a href="#" id="nav-laporan-piutang" class="sidebar-item flex items-center p-3 rounded-lg">
+                        <i class="fa-solid fa-file-invoice-dollar w-6"></i>
+                        <span class="ml-3">Laporan Piutang</span>
+                    </a>
+                </div>
             </nav>
-            <div class="sidebar-footer">
-                <p>Status: <span style="color: #059669; font-weight: 600;">Online (Lokal)</span></p>
-                <p style="color: #ef4444;">Data akan hilang saat refresh.</p>
-            </div>
         </aside>
 
-        <main class="main-content">
-            <div id="view-dashboard" class="view active">
-                <div class="page-header"><h2>Dashboard</h2></div>
-                <div class="dashboard-grid">
-                    <div class="dashboard-card">
-                        <div class="dashboard-card-icon icon-indigo"><i class="fas fa-building"></i></div>
-                        <div class="dashboard-card-content">
-                            <p>Total Properti</p>
-                            <p id="db-total-properties">0</p>
-                        </div>
-                    </div>
-                    <div class="dashboard-card">
-                        <div class="dashboard-card-icon icon-green"><i class="fas fa-users"></i></div>
-                        <div class="dashboard-card-content">
-                            <p>Total Penyewa</p>
-                            <p id="db-total-tenants">0</p>
-                        </div>
-                    </div>
-                    <div class="dashboard-card">
-                        <div class="dashboard-card-icon icon-blue"><i class="fas fa-building-user"></i></div>
-                        <div class="dashboard-card-content">
-                            <p>Unit Terisi</p>
-                            <p id="db-occupied-units">0</p>
-                        </div>
-                    </div>
-                    <div class="dashboard-card">
-                        <div class="dashboard-card-icon icon-red"><i class="fas fa-file-invoice-dollar"></i></div>
-                        <div class="dashboard-card-content">
-                            <p>Total Piutang</p>
-                            <p id="db-total-receivables">Rp 0</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="view-properties" class="view hidden">
-                <div class="page-header">
-                    <h2>Manajemen Properti</h2>
-                    <button id="add-property-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Properti</button>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr><th>Nama Properti</th><th>Alamat</th><th>Harga Sewa/Bulan</th><th class="actions-cell">Aksi</th></tr>
-                        </thead>
-                        <tbody id="properties-table-body"></tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <div id="view-tenants" class="view hidden">
-                <div class="page-header">
-                    <h2>Manajemen Penyewa</h2>
-                    <button id="add-tenant-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Penyewa</button>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr><th>Nama Penyewa</th><th>Telepon</th><th>Email</th><th class="actions-cell">Aksi</th></tr>
-                        </thead>
-                        <tbody id="tenants-table-body"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="view-leases" class="view hidden">
-                <div class="page-header">
-                    <h2>Manajemen Sewa</h2>
-                    <button id="add-lease-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Buat Sewa Baru</button>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr><th>Properti</th><th>Penyewa</th><th>Periode Sewa</th><th>Status</th><th class="actions-cell">Aksi</th></tr>
-                        </thead>
-                        <tbody id="leases-table-body"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="view-reports" class="view hidden">
-                <div class="page-header"><h2>Laporan Keuangan Sewa Kios</h2></div>
-                <div class="card">
-                    <div class="report-controls">
-                        <div class="form-group">
-                            <label for="report-start-date">Tanggal Mulai</label>
-                            <input type="date" id="report-start-date" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="report-end-date">Tanggal Selesai</label>
-                            <input type="date" id="report-end-date" class="form-control">
-                        </div>
-                        <button id="generate-report-btn" class="btn btn-primary">Buat Laporan</button>
-                        <button id="print-report-btn" class="btn btn-secondary hidden"><i class="fas fa-print"></i> Cetak Laporan</button>
-                    </div>
-                </div>
-                <div id="report-results" class="hidden">
-                    <div class="report-grid">
-                        <div class="dashboard-card">
-                            <div class="dashboard-card-content"><p>Total Pendapatan</p><p id="report-income">Rp 0</p></div>
-                        </div>
-                        <div class="dashboard-card">
-                            <div class="dashboard-card-content"><p>Total Pengeluaran</p><p id="report-expenses">Rp 0</p></div>
-                        </div>
-                        <div class="dashboard-card">
-                            <div class="dashboard-card-content"><p>Laba Bersih</p><p id="report-profit">Rp 0</p></div>
-                        </div>
-                    </div>
-                    <div class="report-details-grid">
-                        <div class="table-container">
-                            <h3 style="padding:1rem; border-bottom: 1px solid #e5e7eb;">Detail Pendapatan</h3>
-                            <div style="padding:1rem; max-height: 300px; overflow-y:auto;">
-                                <table>
-                                    <thead>
-                                        <tr><th>Tanggal</th><th>Penyewa</th><th class="text-right">Jumlah</th></tr>
-                                    </thead>
-                                    <tbody id="income-details-body"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="table-container">
-                            <div class="page-header" style="padding:1rem; border-bottom: 1px solid #e5e7eb; margin-bottom:0;">
-                                <h3 style="font-size:1.25rem;">Detail Pengeluaran</h3>
-                                <button id="add-expense-btn" class="btn btn-secondary"><i class="fas fa-plus"></i> Tambah</button>
-                            </div>
-                            <div style="padding:1rem; max-height: 300px; overflow-y:auto;">
-                                <table>
-                                    <thead>
-                                        <tr><th>Tanggal</th><th>Deskripsi</th><th class="text-right">Jumlah</th><th class="actions-cell">Aksi</th></tr>
-                                    </thead>
-                                    <tbody id="expense-details-body"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="view-receivables" class="view hidden">
-                <div class="page-header">
-                    <h2>Laporan Piutang Penyewa</h2>
-                    <div>
-                        <button id="recalculate-receivables-btn" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Hitung Ulang</button>
-                        <button id="print-receivables-btn" class="btn btn-secondary hidden"><i class="fas fa-print"></i> Cetak Laporan</button>
-                    </div>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr><th>Penyewa</th><th>Properti</th><th>Total Tagihan</th><th>Total Bayar</th><th class="text-right">Tunggakan</th></tr>
-                        </thead>
-                        <tbody id="receivables-table-body"></tbody>
-                    </table>
-                </div>
-            </div>
+        <!-- Main Content -->
+        <main id="main-content" class="flex-1 p-8 overflow-y-auto">
+            <!-- Content will be dynamically inserted here -->
         </main>
     </div>
 
-    <!-- Modals -->
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title"></h3>
-                <button id="modal-close-btn">&times;</button>
-            </div>
-            <div id="modal-body" class="modal-body"></div>
-            <div class="modal-footer">
-                <button id="modal-cancel-btn" class="btn btn-secondary">Batal</button>
-                <button id="modal-save-btn" class="btn btn-primary">Simpan</button>
-            </div>
-        </div>
+    <!-- Modal Container -->
+    <div id="modal-container" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <!-- Modal content will be dynamically inserted here -->
+    </div>
+    
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg hidden">
+        <p id="toast-message"></p>
     </div>
 
-    <div id="payment-modal" class="modal">
-        <div class="modal-content" style="max-width: 448px;">
-            <div class="modal-header">
-                <h3>Catat Pembayaran</h3>
-                <button class="payment-modal-close">&times;</button>
+<script>
+// ===================================================================================
+// INITIAL DATA (DATABASE SIMULATION)
+// ===================================================================================
+let kiosData = [
+    { id: 1, kode: 'A-01', blok: 'A', ukuran: '3x4', hargaBulan: 500000, hargaTahun: 5500000, status: 'Tersedia' },
+    { id: 2, kode: 'A-02', blok: 'A', ukuran: '3x4', hargaBulan: 500000, hargaTahun: 5500000, status: 'Tersedia' },
+    { id: 3, kode: 'B-01', blok: 'B', ukuran: '4x4', hargaBulan: 700000, hargaTahun: 7700000, status: 'Disewa' },
+    { id: 4, kode: 'C-01', blok: 'C', ukuran: '3x3', hargaBulan: 400000, hargaTahun: 4400000, status: 'Tersedia' },
+    { id: 5, kode: 'D-01', blok: 'D', ukuran: '5x4', hargaBulan: 900000, hargaTahun: 9900000, status: 'Disewa' },
+];
+
+let penyewaData = [
+    { id: 1, nama: 'Budi Santoso', ktp: '3204123456780001', telepon: '081234567890', alamat: 'Jl. Merdeka No. 10, Bandung' },
+    { id: 2, nama: 'Citra Lestari', ktp: '3204123456780002', telepon: '085678901234', alamat: 'Jl. Asia Afrika No. 25, Bandung' },
+];
+
+// Example: One contract expiring soon
+let soonExpiringDate = new Date();
+soonExpiringDate.setDate(soonExpiringDate.getDate() + 15);
+
+let sewaData = [
+    { id: 1, kiosId: 3, penyewaId: 1, tipe: 'Tahunan', tglMulai: '2024-01-15', tglSelesai: soonExpiringDate.toISOString().split('T')[0], totalTagihan: 7700000, status: 'Aktif' },
+    { id: 2, kiosId: 5, penyewaId: 2, tipe: 'Bulanan', tglMulai: '2025-07-01', tglSelesai: '2025-08-01', totalTagihan: 900000, status: 'Aktif' },
+];
+
+let pembayaranData = [
+    { id: 1, sewaId: 1, tglBayar: '2024-01-15', jumlah: 7700000, metode: 'Transfer' },
+    { id: 2, sewaId: 2, tglBayar: '2024-07-01', jumlah: 500000, metode: 'Tunai' },
+];
+
+let pengeluaranData = [
+    { id: 1, tanggal: '2024-07-05', keterangan: 'Biaya Kebersihan Bulanan', jumlah: 150000 },
+    { id: 2, tanggal: '2024-07-10', keterangan: 'Pembelian Lampu Kios B-01', jumlah: 75000 },
+];
+
+// ===================================================================================
+// UTILITY FUNCTIONS
+// ===================================================================================
+const formatRupiah = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+const formatDate = (dateString) => new Date(dateString).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+
+// Toast notification
+function showToast(message, isError = false) {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+    toastMessage.textContent = message;
+    toast.classList.remove('hidden', 'bg-green-500', 'bg-red-500');
+    toast.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 3000);
+}
+
+// Modal handling
+const modalContainer = document.getElementById('modal-container');
+function openModal(content) {
+    modalContainer.innerHTML = content;
+    modalContainer.classList.remove('hidden');
+}
+function closeModal() {
+    modalContainer.classList.add('hidden');
+    modalContainer.innerHTML = '';
+}
+
+// ===================================================================================
+// RENDER FUNCTIONS (VIEWS)
+// ===================================================================================
+const mainContent = document.getElementById('main-content');
+
+function renderDashboard() {
+    const kiosTersedia = kiosData.filter(k => k.status === 'Tersedia').length;
+    const kiosDisewa = kiosData.filter(k => k.status === 'Disewa').length;
+    
+    const now = new Date();
+    const pendapatanBulanIni = pembayaranData
+        .filter(p => new Date(p.tglBayar).getMonth() === now.getMonth() && new Date(p.tglBayar).getFullYear() === now.getFullYear())
+        .reduce((sum, p) => sum + p.jumlah, 0);
+
+    const totalPiutang = sewaData.reduce((total, sewa) => {
+        const totalBayar = pembayaranData.filter(p => p.sewaId === sewa.id).reduce((sum, p) => sum + p.jumlah, 0);
+        const sisa = sewa.totalTagihan - totalBayar;
+        return total + (sisa > 0 ? sisa : 0);
+    }, 0);
+
+    mainContent.innerHTML = `
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                        <i class="fa-solid fa-store fa-2x"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">Total Kios</p>
+                        <p class="text-2xl font-bold text-gray-800">${kiosData.length}</p>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-                <input type="hidden" id="payment-lease-id">
-                <div class="form-group">
-                    <label for="payment-amount">Jumlah Pembayaran (Rp)</label>
-                    <input type="number" id="payment-amount" class="form-control" placeholder="5000000" min="0">
-                </div>
-                <div class="form-group">
-                    <label for="payment-date">Tanggal Pembayaran</label>
-                    <input type="date" id="payment-date" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label for="payment-notes">Catatan (Opsional)</label>
-                    <textarea id="payment-notes" rows="2" class="form-control"></textarea>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 text-green-600">
+                        <i class="fa-solid fa-check-circle fa-2x"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">Kios Tersedia</p>
+                        <p class="text-2xl font-bold text-gray-800">${kiosTersedia}</p>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="payment-modal-close btn btn-secondary">Batal</button>
-                <button id="save-payment-btn" class="btn btn-primary">Simpan Pembayaran</button>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                        <i class="fa-solid fa-times-circle fa-2x"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">Kios Disewa</p>
+                        <p class="text-2xl font-bold text-gray-800">${kiosDisewa}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-indigo-100 text-indigo-600">
+                        <i class="fa-solid fa-wallet fa-2x"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">Pendapatan Bulan Ini</p>
+                        <p class="text-2xl font-bold text-gray-800">${formatRupiah(pendapatanBulanIni)}</p>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+        <div class="mt-8 bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Ringkasan Piutang</h2>
+            <p class="text-4xl font-bold text-red-600">${formatRupiah(totalPiutang)}</p>
+            <p class="text-gray-500">Total tagihan yang belum dilunasi oleh penyewa.</p>
+        </div>
+    `;
+}
 
-    <div id="expense-modal" class="modal">
-        <div class="modal-content" style="max-width: 448px;">
-            <div class="modal-header">
-                <h3 id="expense-modal-title">Catat Pengeluaran</h3>
-                <button class="expense-modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="expense-id">
-                <div class="form-group">
-                    <label for="expense-description">Deskripsi</label>
-                    <input type="text" id="expense-description" class="form-control" placeholder="e.g., Perbaikan atap">
-                </div>
-                <div class="form-group">
-                    <label for="expense-amount">Jumlah (Rp)</label>
-                    <input type="number" id="expense-amount" class="form-control" placeholder="1500000" min="0">
-                </div>
-                <div class="form-group">
-                    <label for="expense-date">Tanggal</label>
-                    <input type="date" id="expense-date" class="form-control">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="expense-modal-close btn btn-secondary">Batal</button>
-                <button id="save-expense-btn" class="btn btn-primary">Simpan</button>
+function renderKios() {
+    mainContent.innerHTML = `
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Manajemen Kios</h1>
+            <button onclick="showKiosModal()" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow">
+                <i class="fa-solid fa-plus mr-2"></i>Tambah Kios
+            </button>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="table-container">
+                <table class="w-full table-auto text-left">
+                    <thead class="text-gray-600 bg-gray-100">
+                        <tr>
+                            <th class="p-4">Kode Kios</th>
+                            <th class="p-4">Blok</th>
+                            <th class="p-4">Ukuran</th>
+                            <th class="p-4">Harga/Bulan</th>
+                            <th class="p-4">Harga/Tahun</th>
+                            <th class="p-4">Status</th>
+                            <th class="p-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="kios-table-body"></tbody>
+                </table>
             </div>
         </div>
-    </div>
+    `;
+    const tableBody = document.getElementById('kios-table-body');
+    tableBody.innerHTML = kiosData.map(kios => `
+        <tr class="border-b hover:bg-gray-50">
+            <td class="p-4 font-medium text-gray-800">${kios.kode}</td>
+            <td class="p-4">${kios.blok}</td>
+            <td class="p-4">${kios.ukuran} m</td>
+            <td class="p-4">${formatRupiah(kios.hargaBulan)}</td>
+            <td class="p-4">${formatRupiah(kios.hargaTahun)}</td>
+            <td class="p-4">
+                <span class="px-3 py-1 text-sm rounded-full ${kios.status === 'Tersedia' ? 'bg-green-100 text-green-700' : (kios.status === 'Disewa' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700')}">
+                    ${kios.status}
+                </span>
+            </td>
+            <td class="p-4 text-center">
+                <button onclick="showKiosModal(${kios.id})" class="text-blue-600 hover:text-blue-800 mr-4"><i class="fa-solid fa-pencil"></i></button>
+                <button onclick="deleteKios(${kios.id})" class="text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
 
-    <div id="alert-modal" class="modal">
-        <div class="modal-content" style="max-width: 384px;">
-            <div style="padding: 1.5rem; text-align: center;">
-                <div style="margin: auto; display: flex; align-items: center; justify-content: center; height: 3rem; width: 3rem; border-radius: 9999px; background-color: #dbeafe;">
-                    <i class="fas fa-info-circle" style="color: #3b82f6; font-size: 1.25rem;"></i>
-                </div>
-                <h3 id="alert-modal-title" style="font-size: 1.125rem; font-weight: 500; color: #111827; margin-top: 1.25rem;">Notifikasi</h3>
-                <p id="alert-modal-text" style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">Ini adalah pesan notifikasi.</p>
-            </div>
-            <div style="padding: 1rem; background-color: #f9fafb; display: flex; justify-content: center;">
-                <button id="alert-modal-ok-btn" class="btn btn-primary" style="width: 100%;">OK</button>
+function renderPenyewa() {
+    mainContent.innerHTML = `
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Manajemen Penyewa</h1>
+            <button onclick="showPenyewaModal()" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow">
+                <i class="fa-solid fa-plus mr-2"></i>Tambah Penyewa
+            </button>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="table-container">
+                <table class="w-full table-auto text-left">
+                    <thead class="text-gray-600 bg-gray-100">
+                        <tr>
+                            <th class="p-4">Nama Lengkap</th>
+                            <th class="p-4">No. KTP</th>
+                            <th class="p-4">No. Telepon</th>
+                            <th class="p-4">Alamat</th>
+                            <th class="p-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="penyewa-table-body"></tbody>
+                </table>
             </div>
         </div>
-    </div>
+    `;
+    const tableBody = document.getElementById('penyewa-table-body');
+    tableBody.innerHTML = penyewaData.map(p => `
+        <tr class="border-b hover:bg-gray-50">
+            <td class="p-4 font-medium text-gray-800">${p.nama}</td>
+            <td class="p-4">${p.ktp}</td>
+            <td class="p-4">${p.telepon}</td>
+            <td class="p-4">${p.alamat}</td>
+            <td class="p-4 text-center">
+                <button onclick="showPenyewaModal(${p.id})" class="text-blue-600 hover:text-blue-800 mr-4"><i class="fa-solid fa-pencil"></i></button>
+                <button onclick="deletePenyewa(${p.id})" class="text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
 
-    <div id="confirm-modal" class="modal">
-        <div class="modal-content" style="max-width: 384px;">
-            <div style="padding: 1.5rem; text-align: center;">
-                <div style="margin: auto; display: flex; align-items: center; justify-content: center; height: 3rem; width: 3rem; border-radius: 9999px; background-color: #fee2e2;">
-                    <i class="fas fa-exclamation-triangle" style="color: #ef4444; font-size: 1.25rem;"></i>
-                </div>
-                <h3 id="confirm-modal-title" style="font-size: 1.125rem; font-weight: 500; color: #111827; margin-top: 1.25rem;">Hapus Item?</h3>
-                <p id="confirm-modal-text" style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">Apakah Anda yakin? Tindakan ini tidak dapat diurungkan.</p>
+function renderSewa() {
+    mainContent.innerHTML = `
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Manajemen Sewa</h1>
+            <button onclick="showSewaModal()" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow">
+                <i class="fa-solid fa-plus mr-2"></i>Buat Kontrak Sewa
+            </button>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="mb-4">
+                <input type="text" id="search-sewa" placeholder="Cari berdasarkan nama penyewa..." class="p-2 border rounded-md w-full md:w-1/3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
-            <div style="padding: 1rem; background-color: #f9fafb; display: flex; justify-content: center; gap: 0.75rem;">
-                <button id="confirm-modal-cancel-btn" class="btn btn-secondary" style="width: 100%;">Batal</button>
-                <button id="confirm-modal-ok-btn" class="btn btn-danger" style="width: 100%;">Ya, Hapus</button>
+            <div class="table-container">
+                <table class="w-full table-auto text-left">
+                    <thead class="text-gray-600 bg-gray-100">
+                        <tr>
+                            <th class="p-4">Kode Kios</th>
+                            <th class="p-4">Penyewa</th>
+                            <th class="p-4">Periode Sewa</th>
+                            <th class="p-4">Jatuh Tempo</th>
+                            <th class="p-4">Total Tagihan</th>
+                            <th class="p-4">Telah Dibayar</th>
+                            <th class="p-4">Sisa Tagihan</th>
+                            <th class="p-4">Status</th>
+                            <th class="p-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sewa-table-body"></tbody>
+                </table>
             </div>
         </div>
-    </div>
+    `;
+    document.getElementById('search-sewa').addEventListener('input', updateSewaTable);
+    updateSewaTable();
+}
 
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // State aplikasi
-        let currentEditId = null;
+function updateSewaTable() {
+    const searchTerm = document.getElementById('search-sewa').value.toLowerCase();
+    const tableBody = document.getElementById('sewa-table-body');
 
-        // Data Contoh
-        window.properties = [
-            { id: 'prop1', name: 'Ruko Melati Square A1', address: 'Jl. Melati No. 123, Jakarta', rentPrice: 7500000 },
-            { id: 'prop2', name: 'Ruko Anggrek Center B5', address: 'Jl. Anggrek No. 45, Surabaya', rentPrice: 5000000 }
-        ];
-        window.tenants = [
-            { id: 'ten1', name: 'Budi Santoso', phone: '081234567890', email: 'budi.s@example.com' },
-            { id: 'ten2', name: 'Citra Lestari', phone: '089876543210', email: 'citra.l@example.com' }
-        ];
-        window.leases = [
-            { id: 'lease1', propertyId: 'prop1', tenantId: 'ten1', startDate: '2024-01-01', endDate: '2024-12-31', monthlyRent: 7500000, status: 'active' },
-            { id: 'lease2', propertyId: 'prop2', tenantId: 'ten2', startDate: '2024-03-15', endDate: '2025-03-14', monthlyRent: 5000000, status: 'active' }
-        ];
-        window.payments = [
-            { id: 'pay1', leaseId: 'lease1', amount: 7500000, paymentDate: '2024-01-05', notes: 'Pembayaran Januari' },
-            { id: 'pay2', leaseId: 'lease1', amount: 7500000, paymentDate: '2024-02-04', notes: 'Pembayaran Februari' },
-            { id: 'pay3', leaseId: 'lease2', amount: 5000000, paymentDate: '2024-03-15', notes: 'Pembayaran Maret' }
-        ];
-        window.expenses = [
-            { id: 'exp1', description: 'Perbaikan Atap Ruko Melati', amount: 1200000, date: '2024-02-20' }
-        ];
-
-        // Fungsi Utilitas
-        const formatCurrency = (amount) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
-        const formatDate = (dateString) => {
-            if (!dateString) return 'N/A';
-            return new Date(dateString).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
-        };
-        const getTodayDateString = () => new Date().toISOString().split('T')[0];
-        const generateId = (prefix) => `${prefix}${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
-
-        // Modal Handling
-        const showAlert = (text, title = 'Notifikasi') => {
-            document.getElementById('alert-modal-title').textContent = title;
-            document.getElementById('alert-modal-text').textContent = text;
-            document.getElementById('alert-modal').classList.add('active');
-        };
-        document.getElementById('alert-modal-ok-btn').addEventListener('click', () => {
-            document.getElementById('alert-modal').classList.remove('active');
-        });
-
-        const showConfirm = (title, text, onConfirm) => {
-            document.getElementById('confirm-modal-title').textContent = title;
-            document.getElementById('confirm-modal-text').textContent = text;
-            document.getElementById('confirm-modal').classList.add('active');
-            const confirmHandler = () => {
-                onConfirm();
-                document.getElementById('confirm-modal').classList.remove('active');
-                document.getElementById('confirm-modal-ok-btn').removeEventListener('click', confirmHandler);
-            };
-            document.getElementById('confirm-modal-ok-btn').addEventListener('click', confirmHandler);
-        };
-        document.getElementById('confirm-modal-cancel-btn').addEventListener('click', () => {
-            document.getElementById('confirm-modal').classList.remove('active');
-        });
-
-        const openModal = (title, bodyHtml, saveHandler) => {
-            document.getElementById('modal-title').textContent = title;
-            document.getElementById('modal-body').innerHTML = bodyHtml;
-            document.getElementById('modal').classList.add('active');
-            document.getElementById('modal-save-btn').onclick = saveHandler;
-        };
-        const closeModal = () => {
-            document.getElementById('modal').classList.remove('active');
-            document.getElementById('modal-body').innerHTML = '';
-            currentEditId = null;
-        };
-        document.getElementById('modal-close-btn').addEventListener('click', closeModal);
-        document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
-
-        // Render Functions
-        const renderProperties = () => {
-            const tbody = document.getElementById('properties-table-body');
-            tbody.innerHTML = window.properties.length ? window.properties.map(p => `
-                <tr>
-                    <td>${p.name}</td>
-                    <td>${p.address}</td>
-                    <td>${formatCurrency(p.rentPrice)}</td>
-                    <td class="actions-cell">
-                        <button class="btn btn-secondary edit-property-btn" data-id="${p.id}"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-danger delete-property-btn" data-id="${p.id}"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('') : `<tr><td colspan="4" style="text-align:center; padding: 1rem; color: #6b7280;">Belum ada properti.</td></tr>`;
-        };
-
-        const renderTenants = () => {
-            const tbody = document.getElementById('tenants-table-body');
-            tbody.innerHTML = window.tenants.length ? window.tenants.map(t => `
-                <tr>
-                    <td>${t.name}</td>
-                    <td>${t.phone}</td>
-                    <td>${t.email || 'N/A'}</td>
-                    <td class="actions-cell">
-                        <button class="btn btn-secondary edit-tenant-btn" data-id="${t.id}"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-danger delete-tenant-btn" data-id="${t.id}"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('') : `<tr><td colspan="4" style="text-align:center; padding: 1rem; color: #6b7280;">Belum ada penyewa.</td></tr>`;
-        };
-
-        const renderLeases = () => {
-            const tbody = document.getElementById('leases-table-body');
-            tbody.innerHTML = window.leases.length ? window.leases.map(l => {
-                const property = window.properties.find(p => p.id === l.propertyId);
-                const tenant = window.tenants.find(t => t.id === l.tenantId);
-                return `
-                <tr>
-                    <td>${property?.name || 'N/A'}</td>
-                    <td>${tenant?.name || 'N/A'}</td>
-                    <td>${formatDate(l.startDate)} - ${formatDate(l.endDate)}</td>
-                    <td><span class="status-badge ${l.status}">${l.status === 'active' ? 'Aktif' : 'Tidak Aktif'}</span></td>
-                    <td class="actions-cell">
-                        <button class="btn btn-success record-payment-btn" data-id="${l.id}"><i class="fas fa-dollar-sign"></i></button>
-                        <button class="btn btn-secondary edit-lease-btn" data-id="${l.id}"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-danger delete-lease-btn" data-id="${l.id}"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `}).join('') : `<tr><td colspan="5" style="text-align:center; padding: 1rem; color: #6b7280;">Belum ada data sewa.</td></tr>`;
-        };
-
-        const renderExpenses = () => {
-            const tbody = document.getElementById('expense-details-body');
-            tbody.innerHTML = window.expenses.length ? window.expenses.map(ex => `
-                <tr>
-                    <td>${formatDate(ex.date)}</td>
-                    <td>${ex.description}</td>
-                    <td class="text-right">${formatCurrency(ex.amount)}</td>
-                    <td class="actions-cell">
-                        <button class="btn btn-secondary edit-expense-btn" data-id="${ex.id}"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-danger delete-expense-btn" data-id="${ex.id}"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('') : `<tr><td colspan="4" style="text-align:center; padding: 1rem; color: #6b7280;">Tidak ada pengeluaran.</td></tr>`;
-        };
-
-        const updateDashboard = () => {
-            document.getElementById('db-total-properties').textContent = window.properties.length;
-            document.getElementById('db-total-tenants').textContent = window.tenants.length;
-            document.getElementById('db-occupied-units').textContent = window.leases.filter(l => l.status === 'active').length;
-            document.getElementById('db-total-receivables').textContent = formatCurrency(
-                window.leases.filter(l => l.status === 'active')
-                    .reduce((sum, lease) => sum + calculateReceivableForLease(lease).outstanding, 0)
-            );
-        };
-
-        const renderAll = () => {
-            renderProperties();
-            renderTenants();
-            renderLeases();
-            renderExpenses();
-            updateDashboard();
-        };
-
-        // CRUD Handlers
-        // Properties
-        const saveProperty = () => {
-            const name = document.getElementById('prop-name')?.value;
-            const address = document.getElementById('prop-address')?.value;
-            const rentPrice = parseFloat(document.getElementById('prop-rent')?.value);
-            if (!name || !address || isNaN(rentPrice) || rentPrice <= 0) {
-                showAlert('Harap isi semua kolom dengan benar.');
-                return;
-            }
-            if (currentEditId) {
-                const index = window.properties.findIndex(p => p.id === currentEditId);
-                window.properties[index] = { ...window.properties[index], name, address, rentPrice };
-            } else {
-                window.properties.push({ id: generateId('prop'), name, address, rentPrice });
-            }
-            closeModal();
-            renderAll();
-            showAlert('Properti berhasil disimpan!');
-        };
-
-        document.getElementById('add-property-btn').addEventListener('click', () => {
-            currentEditId = null;
-            openModal(
-                'Tambah Properti Baru',
-                `
-                    <div class="form-group">
-                        <label for="prop-name">Nama Properti</label>
-                        <input type="text" id="prop-name" class="form-control" placeholder="Ruko Melati Blok A1">
-                    </div>
-                    <div class="form-group">
-                        <label for="prop-address">Alamat</label>
-                        <input type="text" id="prop-address" class="form-control" placeholder="Jl. Merdeka No. 123">
-                    </div>
-                    <div class="form-group">
-                        <label for="prop-rent">Harga Sewa/Bulan (Rp)</label>
-                        <input type="number" id="prop-rent" class="form-control" placeholder="5000000" min="0">
-                    </div>
-                `,
-                saveProperty
-            );
-        });
-
-        document.getElementById('properties-table-body').addEventListener('click', (e) => {
-            const editBtn = e.target.closest('.edit-property-btn');
-            const deleteBtn = e.target.closest('.delete-property-btn');
-            if (editBtn) {
-                currentEditId = editBtn.dataset.id;
-                const prop = window.properties.find(p => p.id === currentEditId);
-                openModal(
-                    'Edit Properti',
-                    `
-                        <div class="form-group">
-                            <label for="prop-name">Nama Properti</label>
-                            <input type="text" id="prop-name" value="${prop.name}" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="prop-address">Alamat</label>
-                            <input type="text" id="prop-address" value="${prop.address}" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="prop-rent">Harga Sewa/Bulan (Rp)</label>
-                            <input type="number" id="prop-rent" value="${prop.rentPrice}" class="form-control" min="0">
-                        </div>
-                    `,
-                    saveProperty
-                );
-            }
-            if (deleteBtn) {
-                const id = deleteBtn.dataset.id;
-                if (window.leases.some(l => l.propertyId === id)) {
-                    showAlert('Properti tidak dapat dihapus karena sedang digunakan dalam sewa.');
-                    return;
-                }
-                showConfirm('Hapus Properti?', 'Apakah Anda yakin ingin menghapus properti ini?', () => {
-                    window.properties = window.properties.filter(p => p.id !== id);
-                    renderAll();
-                    showAlert('Properti berhasil dihapus!');
-                });
-            }
-        });
-
-        // Tenants
-        const saveTenant = () => {
-            const name = document.getElementById('tenant-name')?.value;
-            const phone = document.getElementById('tenant-phone')?.value;
-            const email = document.getElementById('tenant-email')?.value;
-            if (!name || !phone) {
-                showAlert('Nama dan nomor telepon wajib diisi.');
-                return;
-            }
-            if (currentEditId) {
-                const index = window.tenants.findIndex(t => t.id === currentEditId);
-                window.tenants[index] = { ...window.tenants[index], name, phone, email };
-            } else {
-                window.tenants.push({ id: generateId('ten'), name, phone, email });
-            }
-            closeModal();
-            renderAll();
-            showAlert('Penyewa berhasil disimpan!');
-        };
-
-        document.getElementById('add-tenant-btn').addEventListener('click', () => {
-            currentEditId = null;
-            openModal(
-                'Tambah Penyewa Baru',
-                `
-                    <div class="form-group">
-                        <label for="tenant-name">Nama Lengkap</label>
-                        <input type="text" id="tenant-name" class="form-control" placeholder="Budi Santoso">
-                    </div>
-                    <div class="form-group">
-                        <label for="tenant-phone">Nomor Telepon</label>
-                        <input type="tel" id="tenant-phone" class="form-control" placeholder="081234567890">
-                    </div>
-                    <div class="form-group">
-                        <label for="tenant-email">Email (Opsional)</label>
-                        <input type="email" id="tenant-email" class="form-control" placeholder="budi.santoso@example.com">
-                    </div>
-                `,
-                saveTenant
-            );
-        });
-
-        document.getElementById('tenants-table-body').addEventListener('click', (e) => {
-            const editBtn = e.target.closest('.edit-tenant-btn');
-            const deleteBtn = e.target.closest('.delete-tenant-btn');
-            if (editBtn) {
-                currentEditId = editBtn.dataset.id;
-                const tenant = window.tenants.find(t => t.id === currentEditId);
-                openModal(
-                    'Edit Penyewa',
-                    `
-                        <div class="form-group">
-                            <label for="tenant-name">Nama Lengkap</label>
-                            <input type="text" id="tenant-name" value="${tenant.name}" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="tenant-phone">Nomor Telepon</label>
-                            <input type="tel" id="tenant-phone" value="${tenant.phone}" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="tenant-email">Email (Opsional)</label>
-                            <input type="email" id="tenant-email" value="${tenant.email || ''}" class="form-control">
-                        </div>
-                    `,
-                    saveTenant
-                );
-            }
-            if (deleteBtn) {
-                const id = deleteBtn.dataset.id;
-                if (window.leases.some(l => l.tenantId === id)) {
-                    showAlert('Penyewa tidak dapat dihapus karena sedang digunakan dalam sewa.');
-                    return;
-                }
-                showConfirm('Hapus Penyewa?', 'Apakah Anda yakin ingin menghapus penyewa ini?', () => {
-                    window.tenants = window.tenants.filter(t => t.id !== id);
-                    renderAll();
-                    showAlert('Penyewa berhasil dihapus!');
-                });
-            }
-        });
-
-        // Leases
-        const saveLease = () => {
-            const propertyId = document.getElementById('lease-property')?.value;
-            const tenantId = document.getElementById('lease-tenant')?.value;
-            const startDate = document.getElementById('lease-start')?.value;
-            const endDate = document.getElementById('lease-end')?.value;
-            const status = document.getElementById('lease-status')?.value;
-            const property = window.properties.find(p => p.id === propertyId);
-            if (!propertyId || !tenantId || !startDate || !endDate) {
-                showAlert('Harap isi semua kolom.');
-                return;
-            }
-            if (new Date(startDate) > new Date(endDate)) {
-                showAlert('Tanggal mulai harus sebelum tanggal selesai.');
-                return;
-            }
-            if (window.leases.some(l => l.propertyId === propertyId && l.status === 'active' && l.id !== currentEditId)) {
-                showAlert('Properti ini sudah disewa dalam periode aktif.');
-                return;
-            }
-            const data = {
-                id: currentEditId || generateId('lease'),
-                propertyId,
-                tenantId,
-                startDate,
-                endDate,
-                monthlyRent: property.rentPrice,
-                status
-            };
-            if (currentEditId) {
-                const index = window.leases.findIndex(l => l.id === currentEditId);
-                window.leases[index] = data;
-            } else {
-                window.leases.push(data);
-            }
-            closeModal();
-            renderAll();
-            showAlert('Data sewa berhasil disimpan!');
-        };
-
-        document.getElementById('add-lease-btn').addEventListener('click', () => {
-            if (!window.properties.length || !window.tenants.length) {
-                showAlert('Tambahkan properti dan penyewa terlebih dahulu.');
-                return;
-            }
-            currentEditId = null;
-            openModal(
-                'Buat Sewa Baru',
-                `
-                    <div class="form-group">
-                        <label for="lease-property">Pilih Properti</label>
-                        <select id="lease-property" class="form-control">
-                            ${window.properties.map(p => `<option value="${p.id}">${p.name} (${formatCurrency(p.rentPrice)})</option>`).join('')}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="lease-tenant">Pilih Penyewa</label>
-                        <select id="lease-tenant" class="form-control">
-                            ${window.tenants.map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="lease-start">Tanggal Mulai</label>
-                        <input type="date" id="lease-start" value="${getTodayDateString()}" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label for="lease-end">Tanggal Selesai</label>
-                        <input type="date" id="lease-end" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label for="lease-status">Status</label>
-                        <select id="lease-status" class="form-control">
-                            <option value="active">Aktif</option>
-                            <option value="inactive">Tidak Aktif</option>
-                        </select>
-                    </div>
-                `,
-                saveLease
-            );
-        });
-
-        document.getElementById('leases-table-body').addEventListener('click', (e) => {
-            const editBtn = e.target.closest('.edit-lease-btn');
-            const deleteBtn = e.target.closest('.delete-lease-btn');
-            const paymentBtn = e.target.closest('.record-payment-btn');
-            if (editBtn) {
-                currentEditId = editBtn.dataset.id;
-                const lease = window.leases.find(l => l.id === currentEditId);
-                openModal(
-                    'Edit Data Sewa',
-                    `
-                        <div class="form-group">
-                            <label for="lease-property">Pilih Properti</label>
-                            <select id="lease-property" class="form-control">
-                                ${window.properties.map(p => `<option value="${p.id}" ${p.id === lease.propertyId ? 'selected' : ''}>${p.name}</option>`).join('')}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="lease-tenant">Pilih Penyewa</label>
-                            <select id="lease-tenant" class="form-control">
-                                ${window.tenants.map(t => `<option value="${t.id}" ${t.id === lease.tenantId ? 'selected' : ''}>${t.name}</option>`).join('')}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="lease-start">Tanggal Mulai</label>
-                            <input type="date" id="lease-start" value="${lease.startDate}" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="lease-end">Tanggal Selesai</label>
-                            <input type="date" id="lease-end" value="${lease.endDate}" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="lease-status">Status</label>
-                            <select id="lease-status" class="form-control">
-                                <option value="active" ${lease.status === 'active' ? 'selected' : ''}>Aktif</option>
-                                <option value="inactive" ${lease.status === 'inactive' ? 'selected' : ''}>Tidak Aktif</option>
-                            </select>
-                        </div>
-                    `,
-                    saveLease
-                );
-            }
-            if (deleteBtn) {
-                const id = deleteBtn.dataset.id;
-                showConfirm('Hapus Sewa?', 'Tindakan ini tidak akan menghapus riwayat pembayaran terkait.', () => {
-                    window.leases = window.leases.filter(l => l.id !== id);
-                    renderAll();
-                    showAlert('Data sewa berhasil dihapus!');
-                });
-            }
-            if (paymentBtn) {
-                const leaseId = paymentBtn.dataset.id;
-                const lease = window.leases.find(l => l.id === leaseId);
-                document.getElementById('payment-lease-id').value = leaseId;
-                document.getElementById('payment-amount').value = lease.monthlyRent;
-                document.getElementById('payment-date').value = getTodayDateString();
-                document.getElementById('payment-notes').value = '';
-                document.getElementById('payment-modal').classList.add('active');
-            }
-        });
-
-        // Payments
-        document.querySelectorAll('.payment-modal-close').forEach(btn => {
-            btn.addEventListener('click', () => document.getElementById('payment-modal').classList.remove('active'));
-        });
-        document.getElementById('save-payment-btn').addEventListener('click', () => {
-            const leaseId = document.getElementById('payment-lease-id').value;
-            const amount = parseFloat(document.getElementById('payment-amount').value);
-            const paymentDate = document.getElementById('payment-date').value;
-            const notes = document.getElementById('payment-notes').value;
-            if (!leaseId || isNaN(amount) || amount <= 0 || !paymentDate) {
-                showAlert('Harap isi jumlah dan tanggal pembayaran dengan benar.');
-                return;
-            }
-            window.payments.push({ id: generateId('pay'), leaseId, amount, paymentDate, notes });
-            document.getElementById('payment-modal').classList.remove('active');
-            renderAll();
-            showAlert('Pembayaran berhasil dicatat!');
-        });
-
-        // Expenses
-        const saveExpense = () => {
-            const description = document.getElementById('expense-description')?.value;
-            const amount = parseFloat(document.getElementById('expense-amount')?.value);
-            const date = document.getElementById('expense-date')?.value;
-            if (!description || isNaN(amount) || amount <= 0 || !date) {
-                showAlert('Harap isi semua kolom dengan benar.');
-                return;
-            }
-            if (currentEditId) {
-                const index = window.expenses.findIndex(ex => ex.id === currentEditId);
-                window.expenses[index] = { ...window.expenses[index], description, amount, date };
-            } else {
-                window.expenses.push({ id: generateId('exp'), description, amount, date });
-            }
-            document.getElementById('expense-modal').classList.remove('active');
-            renderAll();
-            showAlert('Pengeluaran berhasil disimpan!');
-        };
-
-        document.getElementById('add-expense-btn').addEventListener('click', () => {
-            currentEditId = null;
-            document.getElementById('expense-modal-title').textContent = 'Catat Pengeluaran';
-            document.getElementById('expense-description').value = '';
-            document.getElementById('expense-amount').value = '';
-            document.getElementById('expense-date').value = getTodayDateString();
-            document.getElementById('expense-modal').classList.add('active');
-        });
-
-        document.getElementById('expense-details-body').addEventListener('click', (e) => {
-            const editBtn = e.target.closest('.edit-expense-btn');
-            const deleteBtn = e.target.closest('.delete-expense-btn');
-            if (editBtn) {
-                currentEditId = editBtn.dataset.id;
-                const expense = window.expenses.find(ex => ex.id === currentEditId);
-                document.getElementById('expense-modal-title').textContent = 'Edit Pengeluaran';
-                document.getElementById('expense-description').value = expense.description;
-                document.getElementById('expense-amount').value = expense.amount;
-                document.getElementById('expense-date').value = expense.date;
-                document.getElementById('expense-modal').classList.add('active');
-            }
-            if (deleteBtn) {
-                const id = deleteBtn.dataset.id;
-                showConfirm('Hapus Pengeluaran?', 'Apakah Anda yakin ingin menghapus pengeluaran ini?', () => {
-                    window.expenses = window.expenses.filter(ex => ex.id !== id);
-                    renderAll();
-                    showAlert('Pengeluaran berhasil dihapus!');
-                });
-            }
-        });
-
-        document.querySelectorAll('.expense-modal-close').forEach(btn => {
-            btn.addEventListener('click', () => document.getElementById('expense-modal').classList.remove('active'));
-        });
-        document.getElementById('save-expense-btn').addEventListener('click', saveExpense);
-
-        // Reports
-        document.getElementById('generate-report-btn').addEventListener('click', () => {
-            const startDate = document.getElementById('report-start-date').value;
-            const endDate = document.getElementById('report-end-date').value;
-            if (!startDate || !endDate) {
-                showAlert('Harap pilih rentang tanggal.');
-                return;
-            }
-            if (new Date(startDate) > new Date(endDate)) {
-                showAlert('Tanggal mulai harus sebelum tanggal selesai.');
-                return;
-            }
-            const filteredPayments = window.payments.filter(p => p.paymentDate >= startDate && p.paymentDate <= endDate);
-            const totalIncome = filteredPayments.reduce((sum, p) => sum + p.amount, 0);
-            const filteredExpenses = window.expenses.filter(ex => ex.date >= startDate && ex.date <= endDate);
-            const totalExpenses = filteredExpenses.reduce((sum, ex) => sum + ex.amount, 0);
-            const totalProfit = totalIncome - totalExpenses;
-
-            document.getElementById('report-income').textContent = formatCurrency(totalIncome);
-            document.getElementById('report-expenses').textContent = formatCurrency(totalExpenses);
-            document.getElementById('report-profit').textContent = formatCurrency(totalProfit);
-            document.getElementById('income-details-body').innerHTML = filteredPayments.length ? filteredPayments.map(p => {
-                const lease = window.leases.find(l => l.id === p.leaseId);
-                const tenant = lease ? window.tenants.find(t => t.id === lease.tenantId) : null;
-                return `<tr><td>${formatDate(p.paymentDate)}</td><td>${tenant?.name || 'N/A'}</td><td class="text-right">${formatCurrency(p.amount)}</td></tr>`;
-            }).join('') : `<tr><td colspan="3" style="text-align:center; padding: 1rem; color: #6b7280;">Tidak ada pendapatan.</td></tr>`;
-            renderExpenses();
-            document.getElementById('report-results').classList.remove('hidden');
-            document.getElementById('print-report-btn').classList.remove('hidden');
-        });
-
-        document.getElementById('print-report-btn').addEventListener('click', () => {
-            const startDate = document.getElementById('report-start-date').value;
-            const endDate = document.getElementById('report-end-date').value;
-            if (!startDate || !endDate) {
-                showAlert('Silakan buat laporan terlebih dahulu.');
-                return;
-            }
-            const filteredPayments = window.payments.filter(p => p.paymentDate >= startDate && p.paymentDate <= endDate);
-            const totalIncome = filteredPayments.reduce((sum, p) => sum + p.amount, 0);
-            const filteredExpenses = window.expenses.filter(ex => ex.date >= startDate && ex.date <= endDate);
-            const totalExpenses = filteredExpenses.reduce((sum, ex) => sum + ex.amount, 0);
-            const totalProfit = totalIncome - totalExpenses;
-
-            const printWindow = window.open('', '', 'height=600,width=800');
-            printWindow.document.write(`
-                <html>
-                <head>
-                    <title>Laporan Keuangan Sewa Kios</title>
-                    <style>
-                        body { font-family: 'Inter', sans-serif; font-size: 12px; }
-                        h1, h2 { text-align: center; margin: 12px 0; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                        th, td { border: 1px solid #ddd; padding: 8px; }
-                        th { background-color: #f2f2f2; }
-                        .summary-table { width: 400px; margin: auto; border: none; }
-                        .summary-table td { border: none; font-size: 14px; padding: 5px; }
-                        .summary-table .label { font-weight: bold; }
-                        .summary-table .value { text-align: right; }
-                        .total-row { font-weight: bold; background-color: #f9f9f9; }
-                        .text-right { text-align: right; }
-                    </style>
-                </head>
-                <body>
-                    <h1>Laporan Keuangan Sewa Kios</h1>
-                    <h2>Periode: ${formatDate(startDate)} - ${formatDate(endDate)}</h2>
-                    <table class="summary-table">
-                        <tr><td class="label">Total Pendapatan:</td><td class="value">${formatCurrency(totalIncome)}</td></tr>
-                        <tr><td class="label">Total Pengeluaran:</td><td class="value">${formatCurrency(totalExpenses)}</td></tr>
-                        <tr><td class="label">Laba Bersih:</td><td class="value">${formatCurrency(totalProfit)}</td></tr>
-                    </table>
-                    <h2>Detail Pendapatan</h2>
-                    <table>
-                        <thead><tr><th>Tanggal</th><th>Penyewa</th><th>Properti</th><th class="text-right">Jumlah</th></tr></thead>
-                        <tbody>
-                            ${filteredPayments.map(p => {
-                                const lease = window.leases.find(l => l.id === p.leaseId);
-                                const tenant = lease ? window.tenants.find(t => t.id === lease.tenantId) : null;
-                                const property = lease ? window.properties.find(prop => prop.id === lease.propertyId) : null;
-                                return `<tr><td>${formatDate(p.paymentDate)}</td><td>${tenant?.name || 'N/A'}</td><td>${property?.name || 'N/A'}</td><td class="text-right">${formatCurrency(p.amount)}</td></tr>`;
-                            }).join('')}
-                            <tr class="total-row"><td colspan="3">Total Pendapatan</td><td class="text-right">${formatCurrency(totalIncome)}</td></tr>
-                        </tbody>
-                    </table>
-                    <h2>Detail Pengeluaran</h2>
-                    <table>
-                        <thead><tr><th>Tanggal</th><th colspan="2">Deskripsi</th><th class="text-right">Jumlah</th></tr></thead>
-                        <tbody>
-                            ${filteredExpenses.map(ex => `<tr><td>${formatDate(ex.date)}</td><td colspan="2">${ex.description}</td><td class="text-right">${formatCurrency(ex.amount)}</td></tr>`).join('')}
-                            <tr class="total-row"><td colspan="3">Total Pengeluaran</td><td class="text-right">${formatCurrency(totalExpenses)}</td></tr>
-                        </tbody>
-                    </table>
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-            printWindow.focus();
-            printWindow.print();
-        });
-
-        // Receivables
-        const calculateReceivableForLease = (lease) => {
-            const start = new Date(lease.startDate);
-            const today = new Date();
-            if (start > today) return { totalDue: 0, totalPaid: 0, outstanding: 0 };
-            const monthsPassed = Math.max(0, (today.getFullYear() - start.getFullYear()) * 12 + today.getMonth() - start.getMonth() + 1);
-            const totalDue = monthsPassed * lease.monthlyRent;
-            const leasePayments = window.payments.filter(p => p.leaseId === lease.id);
-            const totalPaid = leasePayments.reduce((sum, p) => sum + p.amount, 0);
-            return { totalDue, totalPaid, outstanding: Math.max(0, totalDue - totalPaid) };
-        };
-
-        const renderReceivables = () => {
-            const tbody = document.getElementById('receivables-table-body');
-            const activeLeases = window.leases.filter(l => l.status === 'active');
-            tbody.innerHTML = activeLeases.length ? activeLeases.map(lease => {
-                const { totalDue, totalPaid, outstanding } = calculateReceivableForLease(lease);
-                if (outstanding <= 0) return '';
-                const tenant = window.tenants.find(t => t.id === lease.tenantId);
-                const property = window.properties.find(p => p.id === lease.propertyId);
-                return `
-                    <tr>
-                        <td>${tenant?.name || 'N/A'}</td>
-                        <td>${property?.name || 'N/A'}</td>
-                        <td>${formatCurrency(totalDue)}</td>
-                        <td>${formatCurrency(totalPaid)}</td>
-                        <td class="text-right" style="color:#ef4444;">${formatCurrency(outstanding)}</td>
-                    </tr>
-                `;
-            }).filter(row => row).join('') || `<tr><td colspan="5" style="text-align:center; padding: 1rem; color: #6b7280;">Tidak ada piutang.</td></tr>` : `<tr><td colspan="5" style="text-align:center; padding: 1rem; color: #6b7280;">Tidak ada sewa aktif.</td></tr>`;
-            document.getElementById('print-receivables-btn').classList.toggle('hidden', !activeLeases.some(l => calculateReceivableForLease(l).outstanding > 0));
-        };
-
-        document.getElementById('recalculate-receivables-btn').addEventListener('click', () => {
-            renderReceivables();
-            showAlert('Laporan piutang telah diperbarui.');
-        });
-
-        document.getElementById('print-receivables-btn').addEventListener('click', () => {
-            const printWindow = window.open('', '', 'height=600,width=800');
-            printWindow.document.write(`
-                <html>
-                <head>
-                    <title>Laporan Piutang Penyewa</title>
-                    <style>
-                        body { font-family: 'Inter', sans-serif; font-size: 12px; }
-                        h1, h2 { text-align: center; margin: 12px 0; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                        th, td { border: 1px solid #ddd; padding: 8px; }
-                        th { background-color: #f2f2f2; }
-                        .total-row { font-weight: bold; background-color: #f9f9f9; }
-                        .text-right { text-align: right; }
-                        .text-red { color: #dc2626; }
-                    </style>
-                </head>
-                <body>
-                    <h1>Laporan Piutang Penyewa</h1>
-                    <h2>Per Tanggal: ${formatDate(getTodayDateString())}</h2>
-                    <table>
-                        <thead><tr><th>Penyewa</th><th>Properti</th><th class="text-right">Total Tagihan</th><th class="text-right">Total Bayar</th><th class="text-right">Tunggakan</th></tr></thead>
-                        <tbody>
-                            ${window.leases.filter(l => l.status === 'active').map(lease => {
-                                const { totalDue, totalPaid, outstanding } = calculateReceivableForLease(lease);
-                                if (outstanding <= 0) return '';
-                                const tenant = window.tenants.find(t => t.id === lease.tenantId);
-                                const property = window.properties.find(p => p.id === lease.propertyId);
-                                return `
-                                    <tr>
-                                        <td>${tenant?.name || 'N/A'}</td>
-                                        <td>${property?.name || 'N/A'}</td>
-                                        <td class="text-right">${formatCurrency(totalDue)}</td>
-                                        <td class="text-right">${formatCurrency(totalPaid)}</td>
-                                        <td class="text-right text-red">${formatCurrency(outstanding)}</td>
-                                    </tr>
-                                `;
-                            }).filter(row => row).join('')}
-                            <tr class="total-row">
-                                <td colspan="4">Total Seluruh Piutang</td>
-                                <td class="text-right text-red">${formatCurrency(window.leases.filter(l => l.status === 'active').reduce((sum, l) => sum + calculateReceivableForLease(l).outstanding, 0))}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-            printWindow.focus();
-            printWindow.print();
-        });
-
-        // Navigation
-        document.getElementById('navigation').addEventListener('click', (e) => {
-            const navItem = e.target.closest('.nav-item');
-            if (!navItem) return;
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            navItem.classList.add('active');
-            document.querySelectorAll('.view').forEach(view => {
-                view.classList.toggle('hidden', view.id !== `view-${navItem.dataset.view}`);
-                view.classList.toggle('active', view.id === `view-${navItem.dataset.view}`);
-            });
-            if (navItem.dataset.view === 'reports') {
-                document.getElementById('report-results').classList.add('hidden');
-                document.getElementById('print-report-btn').classList.add('hidden');
-            }
-            if (navItem.dataset.view === 'receivables') {
-                renderReceivables();
-            }
-        });
-
-        // Initialize
-        renderAll();
+    const filteredSewa = sewaData.filter(sewa => {
+        if (!searchTerm) return true;
+        const penyewa = penyewaData.find(p => p.id === sewa.penyewaId);
+        return penyewa && penyewa.nama.toLowerCase().includes(searchTerm);
     });
-    </script>
+
+    tableBody.innerHTML = filteredSewa.map(sewa => {
+        const kios = kiosData.find(k => k.id === sewa.kiosId);
+        const penyewa = penyewaData.find(p => p.id === sewa.penyewaId);
+        const totalBayar = pembayaranData.filter(p => p.sewaId === sewa.id).reduce((sum, p) => sum + p.jumlah, 0);
+        const sisaTagihan = sewa.totalTagihan - totalBayar;
+
+        const dueDate = new Date(sewa.tglSelesai);
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        let dueDateClass = 'text-gray-800';
+        let dueDateText = '';
+
+        const timeDiff = dueDate.getTime() - now.getTime();
+        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+        if (daysDiff < 0) {
+            dueDateClass = 'text-red-600 font-bold';
+            dueDateText = `(Telah Berakhir)`;
+        } else if (daysDiff <= 30) {
+            dueDateClass = 'text-yellow-600 font-bold';
+            dueDateText = `(${daysDiff} hari lagi)`;
+        }
+
+        return `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-4 font-medium text-gray-800">${kios ? kios.kode : 'N/A'}</td>
+                <td class="p-4">${penyewa ? penyewa.nama : 'N/A'}</td>
+                <td class="p-4">${formatDate(sewa.tglMulai)} - ${formatDate(sewa.tglSelesai)}</td>
+                <td class="p-4 ${dueDateClass}">
+                    ${formatDate(sewa.tglSelesai)}
+                    <span class="block text-xs">${dueDateText}</span>
+                </td>
+                <td class="p-4">${formatRupiah(sewa.totalTagihan)}</td>
+                <td class="p-4 text-green-600">${formatRupiah(totalBayar)}</td>
+                <td class="p-4 font-bold ${sisaTagihan > 0 ? 'text-red-600' : 'text-gray-800'}">${formatRupiah(sisaTagihan)}</td>
+                <td class="p-4">
+                    <span class="px-3 py-1 text-sm rounded-full ${sewa.status === 'Aktif' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}">
+                        ${sewa.status}
+                    </span>
+                </td>
+                <td class="p-4 text-center">
+                    <button onclick="showPembayaranModal(${sewa.id})" class="text-green-600 hover:text-green-800 mr-4" title="Catat Pembayaran"><i class="fa-solid fa-money-bill-wave"></i></button>
+                    <button onclick="deleteSewa(${sewa.id})" class="text-red-600 hover:text-red-800" title="Hapus Kontrak"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function renderPengeluaran() {
+    mainContent.innerHTML = `
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Manajemen Pengeluaran</h1>
+            <button onclick="showPengeluaranModal()" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow">
+                <i class="fa-solid fa-plus mr-2"></i>Tambah Pengeluaran
+            </button>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="table-container">
+                <table class="w-full table-auto text-left">
+                    <thead class="text-gray-600 bg-gray-100">
+                        <tr>
+                            <th class="p-4">Tanggal</th>
+                            <th class="p-4">Keterangan</th>
+                            <th class="p-4 text-right">Jumlah</th>
+                            <th class="p-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pengeluaran-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    `;
+    updatePengeluaranTable();
+}
+
+function updatePengeluaranTable() {
+    const tableBody = document.getElementById('pengeluaran-table-body');
+    tableBody.innerHTML = pengeluaranData.map(p => `
+        <tr class="border-b hover:bg-gray-50">
+            <td class="p-4">${formatDate(p.tanggal)}</td>
+            <td class="p-4 font-medium text-gray-800">${p.keterangan}</td>
+            <td class="p-4 text-right">${formatRupiah(p.jumlah)}</td>
+            <td class="p-4 text-center">
+                <button onclick="showPengeluaranModal(${p.id})" class="text-blue-600 hover:text-blue-800 mr-4"><i class="fa-solid fa-pencil"></i></button>
+                <button onclick="deletePengeluaran(${p.id})" class="text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+
+function renderLaporanKeuangan() {
+    mainContent.innerHTML = `
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Laporan Keuangan</h1>
+            <div>
+                <button id="export-keuangan-pdf" class="btn bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow mr-2">
+                    <i class="fa-solid fa-file-pdf mr-2"></i>Export PDF
+                </button>
+                <button id="export-keuangan-excel" class="btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow">
+                    <i class="fa-solid fa-file-excel mr-2"></i>Export Excel
+                </button>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="mb-4 flex space-x-4">
+                <div>
+                    <label for="start-date-keuangan" class="block text-sm font-medium text-gray-700">Tanggal Mulai</label>
+                    <input type="date" id="start-date-keuangan" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="end-date-keuangan" class="block text-sm font-medium text-gray-700">Tanggal Selesai</label>
+                    <input type="date" id="end-date-keuangan" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <button id="filter-keuangan" class="self-end btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow">Filter</button>
+            </div>
+            <div class="table-container">
+                <table class="w-full table-auto text-left" id="tabel-keuangan">
+                    <thead class="text-gray-600 bg-gray-100">
+                        <tr>
+                            <th class="p-4">Tanggal</th>
+                            <th class="p-4">Keterangan</th>
+                            <th class="p-4 text-right">Debit (Pemasukan)</th>
+                            <th class="p-4 text-right">Kredit (Pengeluaran)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="keuangan-table-body"></tbody>
+                    <tfoot class="font-bold bg-gray-100">
+                        <tr>
+                            <td colspan="2" class="p-4 text-right">Total Pemasukan</td>
+                            <td id="total-pemasukan" class="p-4 text-right text-green-600"></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="p-4 text-right">Total Pengeluaran</td>
+                            <td id="total-pengeluaran" class="p-4 text-right text-red-600"></td>
+                        </tr>
+                        <tr class="border-t-2 border-gray-300">
+                            <td colspan="3" class="p-4 text-right">Saldo Akhir</td>
+                            <td id="saldo-akhir" class="p-4 text-right"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('filter-keuangan').addEventListener('click', updateLaporanKeuangan);
+    document.getElementById('export-keuangan-pdf').addEventListener('click', exportKeuanganToPDF);
+    document.getElementById('export-keuangan-excel').addEventListener('click', exportKeuanganToExcel);
+    updateLaporanKeuangan();
+}
+
+function updateLaporanKeuangan() {
+    const startDate = document.getElementById('start-date-keuangan').value;
+    const endDate = document.getElementById('end-date-keuangan').value;
+
+    const pemasukan = pembayaranData.map(p => {
+        const sewa = sewaData.find(s => s.id === p.sewaId);
+        const penyewa = sewa ? penyewaData.find(py => py.id === sewa.penyewaId) : null;
+        return {
+            tanggal: p.tglBayar,
+            keterangan: `Pembayaran sewa dari ${penyewa ? penyewa.nama : 'N/A'}`,
+            debit: p.jumlah,
+            kredit: 0
+        };
+    });
+
+    const pengeluaran = pengeluaranData.map(p => ({
+        tanggal: p.tanggal,
+        keterangan: p.keterangan,
+        debit: 0,
+        kredit: p.jumlah
+    }));
+
+    let allTransactions = [...pemasukan, ...pengeluaran];
+
+    if (startDate) {
+        allTransactions = allTransactions.filter(t => t.tanggal >= startDate);
+    }
+    if (endDate) {
+        allTransactions = allTransactions.filter(t => t.tanggal <= endDate);
+    }
+
+    allTransactions.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+    
+    const tableBody = document.getElementById('keuangan-table-body');
+    let totalPemasukan = 0;
+    let totalPengeluaran = 0;
+
+    tableBody.innerHTML = allTransactions.map(t => {
+        totalPemasukan += t.debit;
+        totalPengeluaran += t.kredit;
+        return `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-4">${formatDate(t.tanggal)}</td>
+                <td class="p-4">${t.keterangan}</td>
+                <td class="p-4 text-right text-green-600">${t.debit > 0 ? formatRupiah(t.debit) : '-'}</td>
+                <td class="p-4 text-right text-red-600">${t.kredit > 0 ? formatRupiah(t.kredit) : '-'}</td>
+            </tr>
+        `;
+    }).join('');
+
+    const saldoAkhir = totalPemasukan - totalPengeluaran;
+    document.getElementById('total-pemasukan').textContent = formatRupiah(totalPemasukan);
+    document.getElementById('total-pengeluaran').textContent = formatRupiah(totalPengeluaran);
+    document.getElementById('saldo-akhir').textContent = formatRupiah(saldoAkhir);
+    document.getElementById('saldo-akhir').className = `p-4 text-right ${saldoAkhir >= 0 ? 'text-blue-600' : 'text-red-600'}`;
+}
+
+function renderLaporanPiutang() {
+    mainContent.innerHTML = `
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Laporan Piutang</h1>
+            <div>
+                <button id="export-piutang-pdf" class="btn bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow mr-2">
+                    <i class="fa-solid fa-file-pdf mr-2"></i>Export PDF
+                </button>
+                <button id="export-piutang-excel" class="btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow">
+                    <i class="fa-solid fa-file-excel mr-2"></i>Export Excel
+                </button>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="mb-4">
+                <input type="text" id="search-piutang" placeholder="Cari berdasarkan nama penyewa..." class="p-2 border rounded-md w-full md:w-1/3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            </div>
+            <div class="table-container">
+                <table class="w-full table-auto text-left" id="tabel-piutang">
+                    <thead class="text-gray-600 bg-gray-100">
+                        <tr>
+                            <th class="p-4">Nama Penyewa</th>
+                            <th class="p-4">Kode Kios</th>
+                            <th class="p-4">No. Telepon</th>
+                            <th class="p-4">Jatuh Tempo</th>
+                            <th class="p-4 text-right">Total Tagihan</th>
+                            <th class="p-4 text-right">Telah Dibayar</th>
+                            <th class="p-4 text-right">Sisa Tagihan (Piutang)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="piutang-table-body"></tbody>
+                    <tfoot class="font-bold bg-gray-100">
+                        <tr>
+                            <td colspan="6" class="p-4 text-right">Total Piutang</td>
+                            <td id="total-piutang" class="p-4 text-right"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('search-piutang').addEventListener('input', updateLaporanPiutang);
+    document.getElementById('export-piutang-pdf').addEventListener('click', exportPiutangToPDF);
+    document.getElementById('export-piutang-excel').addEventListener('click', exportPiutangToExcel);
+    updateLaporanPiutang();
+}
+
+function updateLaporanPiutang() {
+    const searchTerm = document.getElementById('search-piutang') ? document.getElementById('search-piutang').value.toLowerCase() : "";
+    const tableBody = document.getElementById('piutang-table-body');
+    
+    const piutangItems = sewaData.map(sewa => {
+        const totalBayar = pembayaranData.filter(p => p.sewaId === sewa.id).reduce((sum, p) => sum + p.jumlah, 0);
+        const sisaTagihan = sewa.totalTagihan - totalBayar;
+        const penyewa = penyewaData.find(p => p.id === sewa.penyewaId);
+        const kios = kiosData.find(k => k.id === sewa.kiosId);
+        return { ...sewa, sisaTagihan, totalBayar, penyewa, kios };
+    }).filter(item => {
+        if (item.sisaTagihan <= 0) return false;
+        if (searchTerm && (!item.penyewa || !item.penyewa.nama.toLowerCase().includes(searchTerm))) return false;
+        return true;
+    });
+
+    let totalPiutang = 0;
+    tableBody.innerHTML = piutangItems.map(item => {
+        totalPiutang += item.sisaTagihan;
+        return `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-4">${item.penyewa ? item.penyewa.nama : 'N/A'}</td>
+                <td class="p-4">${item.kios ? item.kios.kode : 'N/A'}</td>
+                <td class="p-4">${item.penyewa ? item.penyewa.telepon : 'N/A'}</td>
+                <td class="p-4">${formatDate(item.tglSelesai)}</td>
+                <td class="p-4 text-right">${formatRupiah(item.totalTagihan)}</td>
+                <td class="p-4 text-right">${formatRupiah(item.totalBayar)}</td>
+                <td class="p-4 text-right font-bold text-red-600">${formatRupiah(item.sisaTagihan)}</td>
+            </tr>
+        `;
+    }).join('');
+    
+    document.getElementById('total-piutang').textContent = formatRupiah(totalPiutang);
+}
+
+
+// ===================================================================================
+// MODAL & CRUD LOGIC
+// ===================================================================================
+
+// --- KIOS ---
+function showKiosModal(id = null) {
+    const isEdit = id !== null;
+    const kios = isEdit ? kiosData.find(k => k.id === id) : {};
+    const modalContent = `
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
+            <div class="p-6 border-b">
+                <h2 class="text-2xl font-bold text-gray-800">${isEdit ? 'Edit Kios' : 'Tambah Kios Baru'}</h2>
+            </div>
+            <form id="kios-form" class="p-6 space-y-4">
+                <input type="hidden" id="kios-id" value="${kios.id || ''}">
+                <div>
+                    <label for="kode" class="block text-sm font-medium text-gray-700">Kode Kios</label>
+                    <input type="text" id="kode" value="${kios.kode || ''}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                </div>
+                <div>
+                    <label for="blok" class="block text-sm font-medium text-gray-700">Blok</label>
+                    <select id="blok" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        <option value="A" ${kios.blok === 'A' ? 'selected' : ''}>A</option>
+                        <option value="B" ${kios.blok === 'B' ? 'selected' : ''}>B</option>
+                        <option value="C" ${kios.blok === 'C' ? 'selected' : ''}>C</option>
+                        <option value="D" ${kios.blok === 'D' ? 'selected' : ''}>D</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="ukuran" class="block text-sm font-medium text-gray-700">Ukuran (e.g., 3x4)</label>
+                    <input type="text" id="ukuran" value="${kios.ukuran || ''}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                </div>
+                <div>
+                    <label for="hargaBulan" class="block text-sm font-medium text-gray-700">Harga Sewa / Bulan</label>
+                    <input type="number" id="hargaBulan" value="${kios.hargaBulan || ''}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                </div>
+                <div>
+                    <label for="hargaTahun" class="block text-sm font-medium text-gray-700">Harga Sewa / Tahun</label>
+                    <input type="number" id="hargaTahun" value="${kios.hargaTahun || ''}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                </div>
+                <div class="pt-4 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal()" class="btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">Batal</button>
+                    <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">${isEdit ? 'Update' : 'Simpan'}</button>
+                </div>
+            </form>
+        </div>
+    `;
+    openModal(modalContent);
+    document.getElementById('kios-form').addEventListener('submit', saveKios);
+}
+
+function saveKios(e) {
+    e.preventDefault();
+    const id = document.getElementById('kios-id').value;
+    const newKios = {
+        kode: document.getElementById('kode').value,
+        blok: document.getElementById('blok').value,
+        ukuran: document.getElementById('ukuran').value,
+        hargaBulan: parseInt(document.getElementById('hargaBulan').value),
+        hargaTahun: parseInt(document.getElementById('hargaTahun').value),
+    };
+
+    if (id) {
+        const index = kiosData.findIndex(k => k.id == id);
+        kiosData[index] = { ...kiosData[index], ...newKios };
+        showToast('Data kios berhasil diperbarui.');
+    } else {
+        newKios.id = kiosData.length > 0 ? Math.max(...kiosData.map(k => k.id)) + 1 : 1;
+        newKios.status = 'Tersedia';
+        kiosData.push(newKios);
+        showToast('Kios baru berhasil ditambahkan.');
+    }
+    closeModal();
+    renderKios();
+}
+
+function deleteKios(id) {
+    if (confirm('Apakah Anda yakin ingin menghapus kios ini?')) {
+        if (sewaData.some(s => s.kiosId === id && s.status === 'Aktif')) {
+            showToast('Kios tidak dapat dihapus karena sedang disewa.', true);
+            return;
+        }
+        kiosData = kiosData.filter(k => k.id !== id);
+        showToast('Data kios berhasil dihapus.');
+        renderKios();
+    }
+}
+
+// --- PENYEWA ---
+function showPenyewaModal(id = null) {
+    const isEdit = id !== null;
+    const penyewa = isEdit ? penyewaData.find(p => p.id === id) : {};
+    const modalContent = `
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
+            <div class="p-6 border-b">
+                <h2 class="text-2xl font-bold text-gray-800">${isEdit ? 'Edit Penyewa' : 'Tambah Penyewa Baru'}</h2>
+            </div>
+            <form id="penyewa-form" class="p-6 space-y-4">
+                <input type="hidden" id="penyewa-id" value="${penyewa.id || ''}">
+                <div>
+                    <label for="nama" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                    <input type="text" id="nama" value="${penyewa.nama || ''}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                </div>
+                <div>
+                    <label for="ktp" class="block text-sm font-medium text-gray-700">No. KTP</label>
+                    <input type="text" id="ktp" value="${penyewa.ktp || ''}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                </div>
+                <div>
+                    <label for="telepon" class="block text-sm font-medium text-gray-700">No. Telepon</label>
+                    <input type="text" id="telepon" value="${penyewa.telepon || ''}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                </div>
+                <div>
+                    <label for="alamat" class="block text-sm font-medium text-gray-700">Alamat</label>
+                    <textarea id="alamat" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">${penyewa.alamat || ''}</textarea>
+                </div>
+                <div class="pt-4 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal()" class="btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">Batal</button>
+                    <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">${isEdit ? 'Update' : 'Simpan'}</button>
+                </div>
+            </form>
+        </div>
+    `;
+    openModal(modalContent);
+    document.getElementById('penyewa-form').addEventListener('submit', savePenyewa);
+}
+
+function savePenyewa(e) {
+    e.preventDefault();
+    const id = document.getElementById('penyewa-id').value;
+    const newPenyewa = {
+        nama: document.getElementById('nama').value,
+        ktp: document.getElementById('ktp').value,
+        telepon: document.getElementById('telepon').value,
+        alamat: document.getElementById('alamat').value,
+    };
+
+    if (id) {
+        const index = penyewaData.findIndex(p => p.id == id);
+        penyewaData[index] = { ...penyewaData[index], ...newPenyewa };
+        showToast('Data penyewa berhasil diperbarui.');
+    } else {
+        newPenyewa.id = penyewaData.length > 0 ? Math.max(...penyewaData.map(p => p.id)) + 1 : 1;
+        penyewaData.push(newPenyewa);
+        showToast('Penyewa baru berhasil ditambahkan.');
+    }
+    closeModal();
+    renderPenyewa();
+}
+
+function deletePenyewa(id) {
+    if (confirm('Apakah Anda yakin ingin menghapus penyewa ini?')) {
+        if (sewaData.some(s => s.penyewaId === id && s.status === 'Aktif')) {
+            showToast('Penyewa tidak dapat dihapus karena memiliki kontrak aktif.', true);
+            return;
+        }
+        penyewaData = penyewaData.filter(p => p.id !== id);
+        showToast('Data penyewa berhasil dihapus.');
+        renderPenyewa();
+    }
+}
+
+// --- SEWA ---
+function showSewaModal() {
+    const kiosOptions = kiosData.filter(k => k.status === 'Tersedia').map(k => `<option value="${k.id}">${k.kode} - ${k.blok}</option>`).join('');
+    const penyewaOptions = penyewaData.map(p => `<option value="${p.id}">${p.nama}</option>`).join('');
+
+    const modalContent = `
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-auto">
+            <div class="p-6 border-b">
+                <h2 class="text-2xl font-bold text-gray-800">Buat Kontrak Sewa Baru</h2>
+            </div>
+            <form id="sewa-form" class="p-6 space-y-4">
+                <div>
+                    <label for="kiosId" class="block text-sm font-medium text-gray-700">Pilih Kios (Hanya yang tersedia)</label>
+                    <select id="kiosId" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">${kiosOptions}</select>
+                </div>
+                <div>
+                    <label for="penyewaId" class="block text-sm font-medium text-gray-700">Pilih Penyewa</label>
+                    <select id="penyewaId" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">${penyewaOptions}</select>
+                </div>
+                <div>
+                    <label for="tipeSewa" class="block text-sm font-medium text-gray-700">Tipe Sewa</label>
+                    <select id="tipeSewa" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        <option value="Bulanan">Bulanan</option>
+                        <option value="Tahunan">Tahunan</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="tglMulai" class="block text-sm font-medium text-gray-700">Tanggal Mulai Sewa</label>
+                    <input type="date" id="tglMulai" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                </div>
+                <div class="pt-4 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal()" class="btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">Batal</button>
+                    <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Buat Kontrak</button>
+                </div>
+            </form>
+        </div>
+    `;
+    openModal(modalContent);
+    document.getElementById('sewa-form').addEventListener('submit', saveSewa);
+}
+
+function saveSewa(e) {
+    e.preventDefault();
+    const kiosId = parseInt(document.getElementById('kiosId').value);
+    const tipeSewa = document.getElementById('tipeSewa').value;
+    const tglMulai = document.getElementById('tglMulai').value;
+    
+    const kios = kiosData.find(k => k.id === kiosId);
+    let tglSelesai = new Date(tglMulai);
+    let totalTagihan = 0;
+
+    if (tipeSewa === 'Bulanan') {
+        tglSelesai.setMonth(tglSelesai.getMonth() + 1);
+        totalTagihan = kios.hargaBulan;
+    } else {
+        tglSelesai.setFullYear(tglSelesai.getFullYear() + 1);
+        totalTagihan = kios.hargaTahun;
+    }
+
+    const newSewa = {
+        id: sewaData.length > 0 ? Math.max(...sewaData.map(s => s.id)) + 1 : 1,
+        kiosId: kiosId,
+        penyewaId: parseInt(document.getElementById('penyewaId').value),
+        tipe: tipeSewa,
+        tglMulai: tglMulai,
+        tglSelesai: tglSelesai.toISOString().split('T')[0],
+        totalTagihan: totalTagihan,
+        status: 'Aktif'
+    };
+
+    sewaData.push(newSewa);
+    
+    const kiosIndex = kiosData.findIndex(k => k.id === kiosId);
+    kiosData[kiosIndex].status = 'Disewa';
+
+    showToast('Kontrak sewa baru berhasil dibuat.');
+    closeModal();
+    navigate('sewa');
+}
+
+function deleteSewa(id) {
+    if (confirm('Apakah Anda yakin ingin menghapus kontrak ini? Semua data pembayaran terkait akan ikut terhapus.')) {
+        const sewa = sewaData.find(s => s.id === id);
+        if (sewa) {
+            const kiosIndex = kiosData.findIndex(k => k.id === sewa.kiosId);
+            if (kiosIndex > -1) {
+                kiosData[kiosIndex].status = 'Tersedia';
+            }
+        }
+        
+        sewaData = sewaData.filter(s => s.id !== id);
+        pembayaranData = pembayaranData.filter(p => p.sewaId !== id);
+        
+        showToast('Kontrak sewa berhasil dihapus.');
+        renderSewa();
+    }
+}
+
+// --- PEMBAYARAN ---
+function showPembayaranModal(sewaId) {
+    const sewa = sewaData.find(s => s.id === sewaId);
+    const totalBayar = pembayaranData.filter(p => p.sewaId === sewaId).reduce((sum, p) => sum + p.jumlah, 0);
+    const sisaTagihan = sewa.totalTagihan - totalBayar;
+
+    const riwayatPembayaran = pembayaranData
+        .filter(p => p.sewaId === sewaId)
+        .map(p => `<li>${formatDate(p.tglBayar)}: ${formatRupiah(p.jumlah)} (${p.metode})</li>`)
+        .join('');
+
+    const modalContent = `
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-auto">
+            <div class="p-6 border-b">
+                <h2 class="text-2xl font-bold text-gray-800">Catat Pembayaran</h2>
+                <p class="text-gray-600">Sisa Tagihan: <span class="font-bold text-red-600">${formatRupiah(sisaTagihan)}</span></p>
+            </div>
+            <div class="p-6">
+                <form id="pembayaran-form" class="space-y-4">
+                    <input type="hidden" id="sewaId-pembayaran" value="${sewaId}">
+                    <div>
+                        <label for="jumlahBayar" class="block text-sm font-medium text-gray-700">Jumlah Pembayaran</label>
+                        <input type="number" id="jumlahBayar" max="${sisaTagihan}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                    <div>
+                        <label for="tglBayar" class="block text-sm font-medium text-gray-700">Tanggal Bayar</label>
+                        <input type="date" id="tglBayar" value="${new Date().toISOString().split('T')[0]}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                    <div>
+                        <label for="metodeBayar" class="block text-sm font-medium text-gray-700">Metode Pembayaran</label>
+                        <select id="metodeBayar" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <option value="Tunai">Tunai</option>
+                            <option value="Transfer">Transfer</option>
+                        </select>
+                    </div>
+                    <div class="pt-4 flex justify-end space-x-3">
+                        <button type="button" onclick="closeModal()" class="btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">Batal</button>
+                        <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Simpan Pembayaran</button>
+                    </div>
+                </form>
+                <div class="mt-6 border-t pt-4">
+                    <h3 class="font-bold text-gray-700">Riwayat Pembayaran</h3>
+                    <ul class="list-disc list-inside mt-2 text-gray-600">${riwayatPembayaran || '<li>Belum ada pembayaran.</li>'}</ul>
+                </div>
+            </div>
+        </div>
+    `;
+    openModal(modalContent);
+    document.getElementById('pembayaran-form').addEventListener('submit', savePembayaran);
+}
+
+function savePembayaran(e) {
+    e.preventDefault();
+    const newPembayaran = {
+        id: pembayaranData.length > 0 ? Math.max(...pembayaranData.map(p => p.id)) + 1 : 1,
+        sewaId: parseInt(document.getElementById('sewaId-pembayaran').value),
+        jumlah: parseInt(document.getElementById('jumlahBayar').value),
+        tglBayar: document.getElementById('tglBayar').value,
+        metode: document.getElementById('metodeBayar').value,
+    };
+    pembayaranData.push(newPembayaran);
+    showToast('Pembayaran berhasil dicatat.');
+    closeModal();
+    navigate(document.querySelector('.sidebar-item.active').id.replace('nav-', ''));
+}
+
+// --- PENGELUARAN ---
+function showPengeluaranModal(id = null) {
+    const isEdit = id !== null;
+    const pengeluaran = isEdit ? pengeluaranData.find(p => p.id === id) : {};
+    const modalContent = `
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
+            <div class="p-6 border-b">
+                <h2 class="text-2xl font-bold text-gray-800">${isEdit ? 'Edit Pengeluaran' : 'Tambah Pengeluaran Baru'}</h2>
+            </div>
+            <form id="pengeluaran-form" class="p-6 space-y-4">
+                <input type="hidden" id="pengeluaran-id" value="${pengeluaran.id || ''}">
+                <div>
+                    <label for="tanggal-pengeluaran" class="block text-sm font-medium text-gray-700">Tanggal</label>
+                    <input type="date" id="tanggal-pengeluaran" value="${pengeluaran.tanggal || new Date().toISOString().split('T')[0]}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                </div>
+                <div>
+                    <label for="keterangan-pengeluaran" class="block text-sm font-medium text-gray-700">Keterangan</label>
+                    <input type="text" id="keterangan-pengeluaran" value="${pengeluaran.keterangan || ''}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                </div>
+                <div>
+                    <label for="jumlah-pengeluaran" class="block text-sm font-medium text-gray-700">Jumlah</label>
+                    <input type="number" id="jumlah-pengeluaran" value="${pengeluaran.jumlah || ''}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                </div>
+                <div class="pt-4 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal()" class="btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">Batal</button>
+                    <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">${isEdit ? 'Update' : 'Simpan'}</button>
+                </div>
+            </form>
+        </div>
+    `;
+    openModal(modalContent);
+    document.getElementById('pengeluaran-form').addEventListener('submit', savePengeluaran);
+}
+
+function savePengeluaran(e) {
+    e.preventDefault();
+    const id = document.getElementById('pengeluaran-id').value;
+    const data = {
+        tanggal: document.getElementById('tanggal-pengeluaran').value,
+        keterangan: document.getElementById('keterangan-pengeluaran').value,
+        jumlah: parseInt(document.getElementById('jumlah-pengeluaran').value),
+    };
+
+    if (id) {
+        const index = pengeluaranData.findIndex(p => p.id == id);
+        pengeluaranData[index] = { ...pengeluaranData[index], ...data };
+        showToast('Data pengeluaran berhasil diperbarui.');
+    } else {
+        data.id = pengeluaranData.length > 0 ? Math.max(...pengeluaranData.map(p => p.id)) + 1 : 1;
+        pengeluaranData.push(data);
+        showToast('Pengeluaran baru berhasil ditambahkan.');
+    }
+    closeModal();
+    renderPengeluaran();
+}
+
+function deletePengeluaran(id) {
+    if (confirm('Apakah Anda yakin ingin menghapus data pengeluaran ini?')) {
+        pengeluaranData = pengeluaranData.filter(p => p.id !== id);
+        showToast('Data pengeluaran berhasil dihapus.');
+        renderPengeluaran();
+    }
+}
+
+
+// ===================================================================================
+// EXPORT FUNCTIONS
+// ===================================================================================
+function exportKeuanganToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    doc.text("Laporan Keuangan - Kios Al Jabar", 14, 16);
+    doc.autoTable({
+        html: '#tabel-keuangan',
+        startY: 20,
+        theme: 'grid',
+        headStyles: { fillColor: [22, 160, 133] },
+    });
+    doc.save('laporan-keuangan.pdf');
+}
+
+function exportKeuanganToExcel() {
+    const table = document.getElementById('tabel-keuangan');
+    const wb = XLSX.utils.table_to_book(table, {sheet: "Laporan Keuangan"});
+    XLSX.writeFile(wb, "laporan-keuangan.xlsx");
+}
+
+function exportPiutangToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    doc.text("Laporan Piutang - Kios Al Jabar", 14, 16);
+    doc.autoTable({
+        html: '#tabel-piutang',
+        startY: 20,
+        theme: 'grid',
+        headStyles: { fillColor: [22, 160, 133] },
+    });
+    doc.save('laporan-piutang.pdf');
+}
+
+function exportPiutangToExcel() {
+    const table = document.getElementById('tabel-piutang');
+    const wb = XLSX.utils.table_to_book(table, {sheet: "Laporan Piutang"});
+    XLSX.writeFile(wb, "laporan-piutang.xlsx");
+}
+
+// ===================================================================================
+// NAVIGATION & INITIALIZATION
+// ===================================================================================
+const navLinks = document.querySelectorAll('.sidebar-item');
+
+function navigate(view) {
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.id === `nav-${view}`) {
+            link.classList.add('active');
+        }
+    });
+
+    switch (view) {
+        case 'kios':
+            renderKios();
+            break;
+        case 'penyewa':
+            renderPenyewa();
+            break;
+        case 'sewa':
+            renderSewa();
+            break;
+        case 'pengeluaran':
+            renderPengeluaran();
+            break;
+        case 'laporan-keuangan':
+            renderLaporanKeuangan();
+            break;
+        case 'laporan-piutang':
+            renderLaporanPiutang();
+            break;
+        case 'dashboard':
+        default:
+            renderDashboard();
+            break;
+    }
+}
+
+navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const view = e.currentTarget.id.replace('nav-', '');
+        navigate(view);
+    });
+});
+
+// Initial load
+document.addEventListener('DOMContentLoaded', () => {
+    navigate('dashboard');
+});
+
+</script>
+
 </body>
 </html>
